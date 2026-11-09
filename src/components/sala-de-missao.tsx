@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { readFile, writeFile } from "@/core/fs";
 import { createMachine, prompt as montarPrompt, runCommand } from "@/core/machine";
 import type { Machine } from "@/core/types";
+import { missionBySlug } from "@/content/missions";
 import type { Mission } from "@/content/types";
 import { ordenadas, xpGanho } from "@/lib/progresso";
 import { useProgresso } from "@/store/progresso";
@@ -15,7 +16,8 @@ import { Terminal, type LinhaTerminal } from "./terminal";
 
 const COMANDOS_DO_JOGO = ["missao", "validar", "dica"];
 
-export function SalaDeMissao({ mission }: { mission: Mission }) {
+export function SalaDeMissao({ slug }: { slug: string }) {
+  const mission = missionBySlug(slug) as Mission;
   const machineRef = useRef<Machine>(createMachine(mission.seed));
   const [, setVersao] = useState(0);
   const [historico, setHistorico] = useState<string[]>([]);
