@@ -16,18 +16,19 @@ export type ConclusaoSalva = {
 export type ProgressoSalvo = {
   missoes: Record<string, ConclusaoSalva>;
   atividade: Record<string, number>;
+  xpExtra: number;
   xp: number;
   atualizadoEm: number;
 };
 
 export type MissaoEnviada = { id: string; revisoes?: number; dicas?: number };
 
-const VAZIO: ProgressoSalvo = { missoes: {}, atividade: {}, xp: 0, atualizadoEm: 0 };
+const VAZIO: ProgressoSalvo = { missoes: {}, atividade: {}, xpExtra: 0, xp: 0, atualizadoEm: 0 };
 
 const catalogo = new Map(missions.map((mission) => [mission.id, mission]));
 
-export function calcularXp(salvas: Record<string, ConclusaoSalva>): number {
-  let total = 0;
+export function calcularXp(salvas: Record<string, ConclusaoSalva>, xpExtra = 0): number {
+  let total = Math.max(0, xpExtra);
   for (const [id, conclusao] of Object.entries(salvas)) {
     const mission = catalogo.get(id);
     if (!mission) continue;
@@ -48,7 +49,7 @@ function migrar(bruto: unknown): ProgressoSalvo {
         missoes[id] = { concluidaEm: agora, revisoes: 0, ultimaEm: agora, dicas: 0 };
       }
     }
-    return { missoes, atividade: {}, xp: calcularXp(missoes), atualizadoEm: agora };
+    return { missoes, atividade: {}, xpExtra: 0, xp: calcularXp(missoes), atualizadoEm: agora };
   }
 
   const missoes: Record<string, ConclusaoSalva> = {};
@@ -68,7 +69,15 @@ function migrar(bruto: unknown): ProgressoSalvo {
     if (/^\d{4}-\d{2}-\d{2}$/.test(dia) && typeof xp === "number" && xp > 0) atividade[dia] = xp;
   }
 
-  return { missoes, atividade, xp: calcularXp(missoes), atualizadoEm: Number(dados.atualizadoEm) || 0 };
+  const xpExtra = Math.max(0, Number(dados.xpExtra) || 0);
+
+  return {
+    missoes,
+    atividade,
+    xpExtra,
+    xp: calcularXp(missoes, xpExtra),
+    atualizadoEm: Number(dados.atualizadoEm) || 0,
+  };
 }
 
 export async function lerProgresso(contaId: string): Promise<ProgressoSalvo> {
@@ -110,7 +119,7 @@ export async function sincronizarProgresso(
       : comDicas;
   }
 
-  const xp = calcularXp(missoes);
+  const xp = calcularXp(missoes, atual.xpExtra);
   const ganho = xp - atual.xp;
   const atividade = { ...atual.atividade };
 
@@ -119,7 +128,13 @@ export async function sincronizarProgresso(
     atividade[hoje] = (atividade[hoje] ?? 0) + ganho;
   }
 
-  const atualizado: ProgressoSalvo = { missoes, atividade, xp, atualizadoEm: agora };
+  const atualizado: ProgressoSalvo = {
+    missoes,
+    atividade,
+    xpExtra: atual.xpExtra,
+    xp,
+    atualizadoEm: agora,
+  };
 
   if (ganho !== 0 || Object.keys(missoes).length !== Object.keys(atual.missoes).length) {
     await obterDeposito().definirCampo(MAPA, contaId, JSON.stringify(atualizado));
@@ -135,4 +150,28 @@ export function resumoDoProgresso(progresso: ProgressoSalvo, agora = Date.now())
     xpDaSemana: xpDaSemana(progresso.atividade, agora),
     sequencia: calcularSequencia(progresso.atividade, agora),
   };
+}
+
+export async function creditarXp(
+  contaId: string,
+  quantidade: number,
+  agora = Date.now(),
+): Promise<ProgressoSalvo> {
+  const premio = Math.max(0, Math.round(quantidade));
+  if (premio === 0) return lerProgresso(contaId);
+
+  const atual = await lerProgresso(contaId);
+  const xpExtra = atual.xpExtra + premio;
+  const hoje = chaveDoDia(agora);
+
+  const atualizado: ProgressoSalvo = {
+    ...atual,
+    xpExtra,
+    xp: calcularXp(atual.missoes, xpExtra),
+    atividade: { ...atual.atividade, [hoje]: (atual.atividade[hoje] ?? 0) + premio },
+    atualizadoEm: agora,
+  };
+
+  await obterDeposito().definirCampo(MAPA, contaId, JSON.stringify(atualizado));
+  return atualizado;
 }

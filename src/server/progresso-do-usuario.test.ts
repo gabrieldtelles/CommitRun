@@ -102,3 +102,35 @@ describe("xp e dicas", () => {
     expect(progresso.xp).toBe(Math.round(primeira.xp * 0.7));
   });
 });
+
+describe("crédito de xp fora das missões", () => {
+  it("soma xp extra e registra no dia", async () => {
+    const { creditarXp } = await import("./progresso-do-usuario");
+    const conta = novaConta();
+    const agora = Date.now();
+
+    await sincronizarProgresso(conta, [{ id: primeira.id }], agora);
+    const progresso = await creditarXp(conta, 60, agora);
+
+    expect(progresso.xp).toBe(primeira.xp + 60);
+    expect(progresso.atividade[chaveDoDia(agora)]).toBe(primeira.xp + 60);
+  });
+
+  it("não perde o xp extra quando o progresso é sincronizado de novo", async () => {
+    const { creditarXp } = await import("./progresso-do-usuario");
+    const conta = novaConta();
+
+    await sincronizarProgresso(conta, [{ id: primeira.id }]);
+    await creditarXp(conta, 60);
+    const progresso = await sincronizarProgresso(conta, [{ id: primeira.id }, { id: segunda.id }]);
+
+    expect(progresso.xp).toBe(primeira.xp + segunda.xp + 60);
+  });
+
+  it("ignora crédito negativo", async () => {
+    const { creditarXp } = await import("./progresso-do-usuario");
+    const conta = novaConta();
+    const progresso = await creditarXp(conta, -500);
+    expect(progresso.xp).toBe(0);
+  });
+});
