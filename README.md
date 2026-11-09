@@ -34,6 +34,7 @@ src/
 ├── components/  terminal, grafo de commits, briefing, editor, trilha e sessão
 ├── lib/         regras de XP, níveis, desbloqueio e layout do grafo
 ├── server/      depósito de dados, ranking, progresso por conta e limite de taxa
+├── proxy.ts     bloqueia as rotas de jogo para quem não tem sessão
 └── app/         rotas do Next.js e a API
 ```
 
@@ -68,11 +69,16 @@ automaticamente.
 
 ## Login com GitHub
 
-O login é opcional e usa Auth.js (NextAuth v5) com o provedor do GitHub. Sem as variáveis
-configuradas o jogo funciona normalmente — o botão de entrar simplesmente não aparece, e o
-progresso fica só no navegador.
+**O login é obrigatório para jogar.** O progresso pertence à conta, não ao navegador: `src/proxy.ts`
+bloqueia `/missoes` e `/missao/*` para quem não tem sessão, redirecionando para a página inicial com
+o destino original em `?entrar=`. As rotas `/` e `/ranking` continuam públicas (vitrine e leitura do
+placar), e as APIs respondem 401 sem sessão.
 
-Para ativar:
+Ao sair da conta, o progresso guardado no navegador é apagado — inclusive progresso órfão de antes
+do login existir — e duas contas no mesmo navegador nunca misturam XP.
+
+Sem as variáveis configuradas o app sobe e a página inicial carrega, mas não há como entrar nem
+jogar. Para ativar:
 
 1. Crie um OAuth App em <https://github.com/settings/developers> → **New OAuth App**
    - Homepage URL: `http://localhost:3000`
@@ -92,18 +98,18 @@ Em produção, crie um segundo OAuth App (ou adicione a callback do domínio da 
 `https://seu-dominio.vercel.app/api/auth/callback/github`) e configure as mesmas variáveis em
 Settings → Environment Variables, mais `AUTH_URL` com a URL pública.
 
-Com o login ativo, o progresso deixa de viver só no navegador: ao entrar, o que está salvo na conta
-é mesclado com o que está no aparelho (união das missões concluídas) e gravado de volta pela rota
-`/api/progresso`. Dá para começar no notebook e continuar no celular.
+Ao entrar, o progresso salvo na conta é baixado pela rota `/api/progresso` e, a partir daí, cada
+missão concluída é gravada de volta (união das missões, nunca remoção). Dá para começar no notebook
+e continuar no celular.
 
 ## Ranking
 
-Sem login, o progresso do jogador fica no `localStorage` do navegador. O ranking é opcional e passa
-pela API:
+O `localStorage` funciona como cache da conta; a fonte de verdade é o servidor. O ranking passa pela
+API:
 
 - `GET /api/ranking` devolve os 20 primeiros.
-- `POST /api/ranking` recebe `{ apelido?, missoes: string[] }`. Com sessão ativa o apelido é
-  ignorado e vale o usuário do GitHub, que aparece na lista com selo de verificado.
+- `POST /api/ranking` recebe `{ missoes: string[] }` e exige sessão (401 sem login). O nome exibido
+  é sempre o usuário do GitHub — não há apelido digitável, então ninguém se passa por outro.
 - `GET`/`POST /api/progresso` leem e gravam o progresso da conta logada (401 sem sessão).
 
 O XP **não** é aceito do cliente: o servidor recalcula a pontuação a partir dos identificadores de
@@ -118,8 +124,8 @@ UPSTASH_REDIS_REST_URL=...
 UPSTASH_REDIS_REST_TOKEN=...
 ```
 
-Sem essas variáveis a aplicação continua funcionando normalmente — só o ranking fica restrito à
-instância.
+Sem essas variáveis a aplicação continua funcionando — mas ranking e progresso ficam restritos à
+instância em memória, ou seja, sem persistência real entre deploys.
 
 ## Deploy na Vercel
 
