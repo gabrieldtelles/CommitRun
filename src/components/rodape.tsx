@@ -1,6 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { AUTOR, REDES } from "@/content/autor";
+import { AUTOR } from "@/content/autor";
+import { IconeGithub, IconeInstagram, IconeLinkedin } from "./icones-sociais";
+
+const REDES = [
+  { rotulo: "GitHub", href: AUTOR.github, Icone: IconeGithub },
+  { rotulo: "LinkedIn", href: AUTOR.linkedin, Icone: IconeLinkedin },
+  { rotulo: "Instagram", href: AUTOR.instagram, Icone: IconeInstagram },
+];
 
 const PAGINAS = [
   { href: "/hangar", rotulo: "Hangar" },
@@ -45,16 +52,18 @@ export function Rodape() {
           <h2 id="rodape-redes" className="text-xs uppercase tracking-wider text-muted/70">
             Contato
           </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {REDES.map((rede) => (
-              <li key={rede.rotulo}>
+          <ul className="mt-3 flex gap-3">
+            {REDES.map(({ rotulo, href, Icone }) => (
+              <li key={rotulo}>
                 <a
-                  href={rede.href}
+                  href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted transition-colors hover:text-lime"
+                  aria-label={rotulo}
+                  title={rotulo}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:border-lime hover:text-lime"
                 >
-                  {rede.rotulo}
+                  <Icone className="h-5 w-5" />
                 </a>
               </li>
             ))}
