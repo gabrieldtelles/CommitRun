@@ -27,6 +27,18 @@ export type Remote = {
   objects: Record<string, string>;
 };
 
+export type EntradaDeReflog = { hash: string; acao: string; em: number };
+
+export type Guardado = {
+  mensagem: string;
+  mudancas: Snapshot;
+  removidos: string[];
+  branch: string;
+  em: number;
+};
+
+export type Etiqueta = { hash: string; mensagem?: string };
+
 export type Repo = {
   root: string;
   objects: Record<string, string>;
@@ -37,6 +49,9 @@ export type Repo = {
   config: Record<string, string>;
   remote: Remote | null;
   merge: MergeState | null;
+  reflog: EntradaDeReflog[];
+  stash: Guardado[];
+  tags: Record<string, Etiqueta>;
 };
 
 export type Machine = {

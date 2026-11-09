@@ -15,7 +15,16 @@ export function createRepo(root: string): Repo {
     config: {},
     remote: null,
     merge: null,
+    reflog: [],
+    stash: [],
+    tags: {},
   };
+}
+
+export function registrarReflog(repo: Repo, acao: string): void {
+  const hash = headHash(repo);
+  if (!hash) return;
+  repo.reflog = [{ hash, acao, em: Date.now() }, ...repo.reflog].slice(0, 50);
 }
 
 export function writeBlob(repo: Repo, content: string): string {
