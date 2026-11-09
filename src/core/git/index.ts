@@ -6,6 +6,9 @@ import { gitCommit } from "./commit";
 import { gitLog, gitShow } from "./historico";
 import { gitDiff, gitReset } from "./mudancas";
 import { gitPull, gitPush, gitRemote } from "./remote";
+import { gitCherryPick, gitRebase, gitRevert } from "./historia";
+import { gitStash } from "./stash";
+import { gitReflog, gitTag } from "./tags";
 
 const HELP = `comandos git disponíveis nesta simulação:
 
@@ -25,7 +28,13 @@ const HELP = `comandos git disponíveis nesta simulação:
   checkout [-b] <alvo>      troca de branch ou revisão
   merge <branch>            junta duas linhas de trabalho
   remote add <nome> <url>   conecta um repositório remoto
-  push / pull               envia e recebe commits do remoto`;
+  push / pull               envia e recebe commits do remoto
+  revert <commit>           cria um commit que desfaz outro
+  cherry-pick <commit>      traz um commit solto para a branch atual
+  rebase <branch>           reaplica seus commits sobre outra branch
+  stash [pop|list|drop]     guarda e recupera trabalho pela metade
+  tag [-a] [-d] [nome]      marca versões do projeto
+  reflog                    mostra por onde o HEAD passou`;
 
 export function runGit(machine: Machine, args: string[]): CommandResult {
   const [subcommand = "", ...rest] = args;
@@ -76,6 +85,18 @@ export function runGit(machine: Machine, args: string[]): CommandResult {
       return gitPush(ctx, rest);
     case "pull":
       return gitPull(ctx, rest);
+    case "revert":
+      return gitRevert(ctx, rest);
+    case "cherry-pick":
+      return gitCherryPick(ctx, rest);
+    case "rebase":
+      return gitRebase(ctx, rest);
+    case "stash":
+      return gitStash(ctx, rest);
+    case "tag":
+      return gitTag(ctx, rest);
+    case "reflog":
+      return gitReflog(ctx);
     default:
       return fail(
         `git: '${subcommand}' is not a git command. Veja 'git help' para a lista de comandos.`,

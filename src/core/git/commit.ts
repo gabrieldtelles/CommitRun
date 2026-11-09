@@ -2,6 +2,7 @@ import { readFile } from "../fs";
 import { shortHash } from "../hash";
 import {
   createCommit,
+  registrarReflog,
   diffSnapshots,
   headCommit,
   headHash,
@@ -77,6 +78,7 @@ export function gitCommit(ctx: GitContext, args: string[]): CommandResult {
 
   const wasMerge = Boolean(repo.merge);
   repo.merge = null;
+  registrarReflog(repo, `commit: ${message}`);
 
   const label = repo.head.kind === "branch" ? repo.head.name : "HEAD detached";
   const rootTag = parents.length === 0 ? " (root-commit)" : "";

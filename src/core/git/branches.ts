@@ -2,6 +2,7 @@ import { shortHash } from "../hash";
 import {
   applySnapshot,
   createCommit,
+  registrarReflog,
   headHash,
   isAncestor,
   mergeBase,
@@ -94,6 +95,8 @@ export function gitSwitch(ctx: GitContext, args: string[], allowDetach = false):
   repo.head = isBranch ? { kind: "branch", name } : { kind: "detached", hash };
   repo.index = { ...snapshot };
   applySnapshot(machine.fs, repo, snapshot);
+
+  registrarReflog(repo, `checkout: moving to ${name}`);
 
   if (!isBranch) return ok(`Note: switching to '${name}'.\nHEAD is now at ${shortHash(hash)}`);
   return ok(create ? `Switched to a new branch '${name}'` : `Switched to branch '${name}'`);

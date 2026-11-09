@@ -1,6 +1,13 @@
 import { readFile } from "../fs";
 import { shortHash } from "../hash";
-import { applySnapshot, diffSnapshots, headSnapshot, readBlob, workdirSnapshot } from "../repo";
+import {
+  applySnapshot,
+  diffSnapshots,
+  headSnapshot,
+  readBlob,
+  registrarReflog,
+  workdirSnapshot,
+} from "../repo";
 import type { CommandResult, Snapshot } from "../types";
 import { expandPathspec, fail, ok, type GitContext } from "./context";
 import { fileDiff } from "./diff";
@@ -58,6 +65,8 @@ export function gitReset(ctx: GitContext, args: string[]): CommandResult {
     applySnapshot(machine.fs, repo, target.snapshot);
     repo.merge = null;
   }
+
+  registrarReflog(repo, `reset: moving to ${revision}`);
 
   return ok(mode === "hard" ? `HEAD is now at ${shortHash(hash)} ${target.message}` : "");
 }
