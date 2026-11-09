@@ -5,21 +5,35 @@ import { CtaContinuar } from "@/components/cta-continuar";
 import { Vitrine } from "@/components/vitrine";
 import { chapters, missions, totalXp } from "@/content/missions";
 
-const ETAPAS = [
+const CICLO = [
   {
     numero: "01",
-    titulo: "Briefing",
-    texto: "TellesDev explica o problema do time e o que precisa estar versionado no fim da missão.",
+    titulo: "Chega um problema, não um exercício",
+    texto:
+      "A pasta já está quebrada quando você entra: mensagem de commit que não explica nada, arquivo " +
+      "que nunca devia ter sido versionado, branch que ninguém sabe fundir. O briefing de TellesDev " +
+      "diz o que o time precisa ver resolvido — o caminho é você quem escolhe.",
   },
   {
     numero: "02",
-    titulo: "Terminal",
-    texto: "Você resolve com git de verdade, em um repositório simulado que roda no navegador.",
+    titulo: "Você digita git, não escolhe alternativa",
+    texto:
+      "São 23 comandos escritos do zero para este jogo, de merge de três vias a rebase, stash e " +
+      "reflog. O repositório responde como o git responde, inclusive quando você erra.",
   },
   {
     numero: "03",
-    titulo: "Validação",
-    texto: "O estado do repositório é conferido comando a comando. Passou, ganha XP e libera a próxima.",
+    titulo: "A validação diz o que ainda falta",
+    texto:
+      "Cada objetivo é conferido no estado real do repositório, e no lugar de um “errado” você " +
+      "recebe a frase da pendência. Pedir dica é opcional e cobra 10% do XP da missão.",
+  },
+  {
+    numero: "04",
+    titulo: "Semanas depois, a missão volta",
+    texto:
+      "O que você concluiu entra na fila de revisão em 2, 7, 21 e 60 dias, valendo 30% do XP, até " +
+      "sair de recém-aprendido para dominado. E o seu diff pode virar pull request para alguém revisar.",
   },
 ];
 
@@ -77,15 +91,26 @@ export default function HomePage() {
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 id="como-funciona" className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Cada missão, do briefing ao commit
+              O ciclo não termina no commit
             </h2>
+            <p className="mt-3 text-muted">Quatro passos por missão. O último acontece semanas depois.</p>
 
-            <ol className="mt-10 grid gap-6 md:grid-cols-3">
-              {ETAPAS.map((etapa) => (
-                <li key={etapa.numero} className="rounded-xl border border-line bg-surface p-6">
-                  <p className="font-mono text-sm text-lime">{etapa.numero}</p>
-                  <h3 className="mt-3 text-lg font-semibold">{etapa.titulo}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{etapa.texto}</p>
+            <ol className="mt-10">
+              {CICLO.map((etapa, indice) => (
+                <li key={etapa.numero} className="relative flex gap-5 pb-8 last:pb-0">
+                  {indice < CICLO.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-0 left-4 top-9 w-px -translate-x-1/2 bg-line"
+                    />
+                  )}
+                  <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface font-mono text-xs text-lime">
+                    {etapa.numero}
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-semibold leading-8">{etapa.titulo}</h3>
+                    <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted">{etapa.texto}</p>
+                  </div>
                 </li>
               ))}
             </ol>
