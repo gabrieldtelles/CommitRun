@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
-import { Cabecalho } from "@/components/cabecalho";
 import { Campanha } from "@/components/hangar/campanha";
 import { MetaDaSemana } from "@/components/hangar/meta-da-semana";
 import { PainelDoJogador } from "@/components/hangar/painel-do-jogador";
 import { ProximaMissao } from "@/components/hangar/proxima-missao";
+import { Pagina } from "@/components/pagina";
 import { AtalhoDeRevisoes } from "@/components/revisoes/atalho";
 
 export const metadata: Metadata = {
@@ -17,9 +17,8 @@ export default async function HangarPage() {
   const apelido = sessao?.user?.login ?? sessao?.user?.name ?? "jogador";
 
   return (
-    <>
-      <Cabecalho />
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
+    <Pagina>
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6">
         <PainelDoJogador apelido={apelido} />
         <ProximaMissao />
 
@@ -31,7 +30,7 @@ export default async function HangarPage() {
             <AtalhoDeRevisoes />
           </aside>
         </div>
-      </main>
-    </>
+      </div>
+    </Pagina>
   );
 }

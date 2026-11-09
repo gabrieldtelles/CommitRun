@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Cabecalho } from "@/components/cabecalho";
+import { Pagina } from "@/components/pagina";
 import { CtaContinuar } from "@/components/cta-continuar";
 import { Vitrine } from "@/components/vitrine";
 import { chapters, missions, totalXp } from "@/content/missions";
@@ -25,10 +25,7 @@ const ETAPAS = [
 
 export default function HomePage() {
   return (
-    <>
-      <Cabecalho />
-
-      <main>
+    <Pagina>
         <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_1fr]">
           <div>
           <p className="font-mono text-sm text-lime">git sem decoreba</p>
@@ -120,16 +117,6 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
-      </main>
-
-      <footer className="border-t border-line py-8">
-        <div className="mx-auto max-w-6xl px-4 text-sm text-muted sm:px-6">
-          <p>CommitRun — um jogo para aprender git praticando.</p>
-          <p className="mt-1 text-xs text-muted/70">
-            O repositório é simulado no navegador: nada do seu computador é acessado.
-          </p>
-        </div>
-      </footer>
-    </>
+    </Pagina>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cabecalho } from "@/components/cabecalho";
+import { Pagina } from "@/components/pagina";
 import { PainelDeRevisoes } from "@/components/revisoes/painel";
 
 export const metadata: Metadata = {
@@ -9,11 +9,8 @@ export const metadata: Metadata = {
 
 export default function RevisoesPage() {
   return (
-    <>
-      <Cabecalho />
-      <main>
-        <PainelDeRevisoes />
-      </main>
-    </>
+    <Pagina>
+      <PainelDeRevisoes />
+    </Pagina>
   );
 }

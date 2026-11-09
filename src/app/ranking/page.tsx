@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cabecalho } from "@/components/cabecalho";
+import { Pagina } from "@/components/pagina";
 import { Ranking } from "@/components/ranking";
 
 export const metadata: Metadata = {
@@ -9,11 +9,8 @@ export const metadata: Metadata = {
 
 export default function RankingPage() {
   return (
-    <>
-      <Cabecalho />
-      <main>
-        <Ranking />
-      </main>
-    </>
+    <Pagina>
+      <Ranking />
+    </Pagina>
   );
 }

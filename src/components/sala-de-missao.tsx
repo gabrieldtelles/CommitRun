@@ -9,6 +9,7 @@ import { GrafoCommits } from "./grafo-commits";
 import { BarraDeAcoes } from "./missao/barra-de-acoes";
 import { ModalConclusao } from "./missao/modal-conclusao";
 import { useMissao } from "./missao/use-missao";
+import { Rodape } from "./rodape";
 import { Terminal } from "./terminal";
 
 export function SalaDeMissao({ slug }: { slug: string }) {
@@ -36,6 +37,8 @@ export function SalaDeMissao({ slug }: { slug: string }) {
           <GrafoCommits repo={jogo.machine.repo} />
         </div>
       </main>
+
+      <Rodape />
 
       {jogo.editando && (
         <EditorArquivo
