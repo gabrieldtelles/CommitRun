@@ -24,7 +24,7 @@ export function Cabecalho() {
             height={256}
             priority
             unoptimized
-            className="h-7 w-auto"
+            className="h-9 w-auto"
           />
         </Link>
 
