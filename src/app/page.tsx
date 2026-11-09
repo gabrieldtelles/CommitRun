@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Cabecalho } from "@/components/cabecalho";
 import { CtaContinuar } from "@/components/cta-continuar";
 import { Vitrine } from "@/components/vitrine";
@@ -42,7 +43,16 @@ export default function HomePage() {
           </p>
 
           <div className="mt-10">
-            <CtaContinuar />
+            <Suspense
+              fallback={
+                <span
+                  className="block h-12 w-64 animate-pulse rounded-lg bg-surface-2"
+                  aria-hidden="true"
+                />
+              }
+            >
+              <CtaContinuar />
+            </Suspense>
           </div>
 
           <dl className="mt-14 grid grid-cols-3 gap-6 border-t border-line pt-6">

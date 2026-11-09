@@ -1,17 +1,46 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 import { missions } from "@/content/missions";
 import { proximaMissao } from "@/lib/progresso";
 import { useProgresso } from "@/store/progresso";
 
 export function CtaContinuar() {
+  const { data: sessao, status } = useSession();
+  const parametros = useSearchParams();
   const xp = useProgresso((estado) => estado.xp);
   const concluidas = useProgresso((estado) => estado.concluidas);
 
+  const logado = Boolean(sessao?.user?.contaId);
+  const bloqueado = parametros.get("entrar");
+
+  if (status === "loading") {
+    return <span className="block h-12 w-64 animate-pulse rounded-lg bg-surface-2" aria-hidden="true" />;
+  }
+
+  if (!logado) {
+    return (
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => void signIn("github", { callbackUrl: bloqueado ?? "/missoes" })}
+          className="rounded-lg bg-lime px-6 py-3 text-sm font-semibold text-base transition-colors hover:bg-lime-soft"
+        >
+          Entrar com GitHub e começar
+        </button>
+        <p className="text-sm text-muted">
+          {bloqueado
+            ? "As missões ficam salvas na sua conta — entre para continuar de onde parou."
+            : "O progresso fica salvo na sua conta do GitHub, em qualquer aparelho."}
+        </p>
+      </div>
+    );
+  }
+
   const feitas = Object.keys(concluidas).length;
   const seguinte = proximaMissao({ xp, concluidas }) ?? missions[0];
-  const comecou = feitas > 0;
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
@@ -19,7 +48,7 @@ export function CtaContinuar() {
         href={seguinte ? `/missao/${seguinte.slug}` : "/missoes"}
         className="rounded-lg bg-lime px-6 py-3 text-center text-sm font-semibold text-base transition-colors hover:bg-lime-soft"
       >
-        {comecou ? "Continuar de onde parei" : "Começar a primeira missão"}
+        {feitas > 0 ? "Continuar de onde parei" : "Começar a primeira missão"}
       </Link>
       <Link
         href="/missoes"

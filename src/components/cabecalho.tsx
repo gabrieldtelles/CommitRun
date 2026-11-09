@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { nivel, patente, xpNoNivel } from "@/lib/progresso";
 import { useProgresso } from "@/store/progresso";
 import { Sessao } from "./sessao";
 
 export function Cabecalho() {
+  const { data: sessao } = useSession();
   const xp = useProgresso((estado) => estado.xp);
   const { atual, total } = xpNoNivel(xp);
+  const logado = Boolean(sessao?.user?.contaId);
 
   return (
     <header className="border-b border-line bg-surface/60">
@@ -25,27 +28,29 @@ export function Cabecalho() {
             Ranking
           </Link>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden text-right sm:block">
-              <p className="text-xs text-muted">
-                nível {nivel(xp)} · {patente(xp)}
-              </p>
-              <p className="font-mono text-xs text-lime">{xp} XP</p>
-            </div>
-            <div
-              role="progressbar"
-              aria-valuenow={atual}
-              aria-valuemin={0}
-              aria-valuemax={total}
-              aria-label="Progresso para o próximo nível"
-              className="h-1.5 w-20 overflow-hidden rounded-full bg-surface-2"
-            >
+          {logado && (
+            <div className="flex items-center gap-3">
+              <div className="hidden text-right sm:block">
+                <p className="text-xs text-muted">
+                  nível {nivel(xp)} · {patente(xp)}
+                </p>
+                <p className="font-mono text-xs text-lime">{xp} XP</p>
+              </div>
               <div
-                className="h-full rounded-full bg-lime transition-[width] duration-500"
-                style={{ width: `${(atual / total) * 100}%` }}
-              />
+                role="progressbar"
+                aria-valuenow={atual}
+                aria-valuemin={0}
+                aria-valuemax={total}
+                aria-label="Progresso para o próximo nível"
+                className="h-1.5 w-20 overflow-hidden rounded-full bg-surface-2"
+              >
+                <div
+                  className="h-full rounded-full bg-lime transition-[width] duration-500"
+                  style={{ width: `${(atual / total) * 100}%` }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <Sessao />
         </nav>
