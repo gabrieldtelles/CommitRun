@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Pontuacao } from "@/server/armazenamento";
 import { useProgresso } from "@/store/progresso";
 
@@ -15,21 +15,28 @@ export function Ranking() {
   const definirApelido = useProgresso((valor) => valor.definirApelido);
   const concluidas = useProgresso((valor) => valor.concluidas);
 
-  const carregar = useCallback(async () => {
-    try {
-      const resposta = await fetch("/api/ranking", { cache: "no-store" });
-      if (!resposta.ok) throw new Error();
-      const dados = (await resposta.json()) as { ranking: Pontuacao[] };
-      setLista(dados.ranking);
-      setEstado("pronto");
-    } catch {
-      setEstado("indisponivel");
-    }
-  }, []);
-
   useEffect(() => {
+    let ativo = true;
+
+    const carregar = async () => {
+      try {
+        const resposta = await fetch("/api/ranking", { cache: "no-store" });
+        if (!resposta.ok) throw new Error("ranking indisponível");
+        const dados = (await resposta.json()) as { ranking: Pontuacao[] };
+        if (ativo) {
+          setLista(dados.ranking);
+          setEstado("pronto");
+        }
+      } catch {
+        if (ativo) setEstado("indisponivel");
+      }
+    };
+
     void carregar();
-  }, [carregar]);
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const enviar = async (evento: React.FormEvent) => {
     evento.preventDefault();

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { readFile, writeFile } from "@/core/fs";
 import { createMachine, prompt as montarPrompt, runCommand } from "@/core/machine";
 import type { Machine } from "@/core/types";
@@ -18,8 +18,10 @@ const COMANDOS_DO_JOGO = ["missao", "validar", "dica"];
 
 export function SalaDeMissao({ slug }: { slug: string }) {
   const mission = missionBySlug(slug) as Mission;
-  const machineRef = useRef<Machine>(createMachine(mission.seed));
-  const [, setVersao] = useState(0);
+  const [jogo, setJogo] = useState<{ machine: Machine; versao: number }>(() => ({
+    machine: createMachine(mission.seed),
+    versao: 0,
+  }));
   const [historico, setHistorico] = useState<string[]>([]);
   const [dicas, setDicas] = useState<string[]>([]);
   const [concluida, setConcluida] = useState(false);
@@ -29,6 +31,7 @@ export function SalaDeMissao({ slug }: { slug: string }) {
     { id: 0, tipo: "mentora", texto: `${mission.title}. Digite missao para rever o objetivo.` },
   ]);
 
+  const machine = jogo.machine;
   const concluir = useProgresso((estado) => estado.concluir);
   const jaConcluida = useProgresso((estado) => Boolean(estado.concluidas[mission.id]));
 
@@ -45,8 +48,12 @@ export function SalaDeMissao({ slug }: { slug: string }) {
     });
   }, []);
 
+  const atualizar = useCallback(() => {
+    setJogo((anterior) => ({ ...anterior, versao: anterior.versao + 1 }));
+  }, []);
+
   const validar = useCallback(() => {
-    const resultado = mission.validate({ machine: machineRef.current, history: historico });
+    const resultado = mission.validate({ machine, history: historico });
 
     if (!resultado.ok) {
       escrever([{ tipo: "erro", texto: resultado.message }]);
@@ -56,7 +63,7 @@ export function SalaDeMissao({ slug }: { slug: string }) {
     escrever([{ tipo: "mentora", texto: resultado.message }]);
     setConcluida(true);
     setGanho(jaConcluida ? 0 : concluir(mission, dicas.length));
-  }, [concluir, dicas.length, escrever, historico, jaConcluida, mission]);
+  }, [concluir, dicas.length, escrever, historico, jaConcluida, machine, mission]);
 
   const pedirDica = useCallback(() => {
     setDicas((anteriores) => {
@@ -69,7 +76,6 @@ export function SalaDeMissao({ slug }: { slug: string }) {
 
   const executar = useCallback(
     (comando: string) => {
-      const machine = machineRef.current;
       const prompt = montarPrompt(machine);
       escrever([{ tipo: "comando", texto: comando, prompt }]);
 
@@ -92,7 +98,7 @@ export function SalaDeMissao({ slug }: { slug: string }) {
 
       if (resultado.effect?.type === "clear") {
         setLinhas([]);
-        setVersao((valor) => valor + 1);
+        atualizar();
         return;
       }
 
@@ -101,23 +107,20 @@ export function SalaDeMissao({ slug }: { slug: string }) {
         escrever([{ tipo: resultado.error ? "erro" : "saida", texto: resultado.output }]);
       }
 
-      setVersao((valor) => valor + 1);
+      atualizar();
     },
-    [escrever, mission.objectives, mission.summary, pedirDica, validar],
+    [atualizar, escrever, machine, mission.objectives, mission.summary, pedirDica, validar],
   );
 
   const reiniciar = useCallback(() => {
-    machineRef.current = createMachine(mission.seed);
+    setJogo({ machine: createMachine(mission.seed), versao: 0 });
     setHistorico([]);
     setConcluida(false);
     setGanho(0);
     setLinhas([
       { id: 0, tipo: "mentora", texto: "Cenário reiniciado. Comece de novo quando quiser." },
     ]);
-    setVersao((valor) => valor + 1);
   }, [mission.seed]);
-
-  const machine = machineRef.current;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -186,7 +189,7 @@ export function SalaDeMissao({ slug }: { slug: string }) {
           onSalvar={(conteudo) => {
             writeFile(machine.fs, editando, conteudo);
             setEditando(null);
-            setVersao((valor) => valor + 1);
+            atualizar();
             escrever([{ tipo: "saida", texto: `arquivo salvo: ${editando}` }]);
           }}
         />
