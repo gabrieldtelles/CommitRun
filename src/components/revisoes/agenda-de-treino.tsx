@@ -37,57 +37,55 @@ function Cartao({ item, vencida }: { item: ItemDeRevisao; vencida: boolean }) {
   );
 }
 
-export function ListaDeRevisoes() {
+export function AgendaDeTreino() {
   const { vencidas, agendadas, total } = useAgendaDeRevisoes();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Revisões</h1>
-      <p className="mt-2 max-w-2xl text-muted">
+    <section className="mt-14 border-t border-line pt-10">
+      <h2 className="text-lg font-bold">Treino espaçado</h2>
+      <p className="mt-2 max-w-2xl text-sm text-muted">
         Comando que você usa uma vez só não gruda. Cada missão concluída volta aqui em intervalos
         crescentes — {INTERVALOS_EM_DIAS.join(", ")} dias — para você refazer do zero e confirmar que
         ainda sabe. Revisão paga 30% do XP da missão.
       </p>
 
       {total === 0 && (
-        <p className="mt-10 rounded-xl border border-line bg-surface p-6 text-sm text-muted">
-          Nenhuma missão concluída ainda. Assim que você terminar a primeira, ela aparece aqui para
-          revisão em dois dias.
+        <p className="mt-6 rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted">
+          Nenhuma missão concluída ainda. Assim que você terminar a primeira, ela volta aqui em dois
+          dias.
         </p>
       )}
 
       {vencidas.length > 0 && (
-        <section className="mt-10" aria-labelledby="vencidas">
-          <h2 id="vencidas" className="text-lg font-bold">
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-warn">
             Esperando por você ({vencidas.length})
-          </h2>
+          </h3>
           <ul className="mt-4 space-y-3">
             {vencidas.map((item) => (
               <Cartao key={item.mission.id} item={item} vencida />
             ))}
           </ul>
-        </section>
+        </div>
       )}
 
       {agendadas.length > 0 && (
-        <section className="mt-10" aria-labelledby="agendadas">
-          <h2 id="agendadas" className="text-lg font-bold">
-            Agendadas
-          </h2>
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-muted">Agendadas</h3>
           <ul className="mt-4 space-y-3">
             {agendadas.map((item) => (
               <Cartao key={item.mission.id} item={item} vencida={false} />
             ))}
           </ul>
-        </section>
+        </div>
       )}
 
       {total > 0 && (
-        <p className="mt-10 border-t border-line pt-6 text-xs text-muted">
+        <p className="mt-6 text-xs text-muted">
           A agenda de hoje foi calculada em {formato.format(new Date())}. Revisões só contam XP
           quando a data chega — refazer antes vale como treino, não como pontos.
         </p>
       )}
-    </div>
+    </section>
   );
 }

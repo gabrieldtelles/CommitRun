@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Cabecalho } from "@/components/cabecalho";
-import { ListaDeRevisoes } from "@/components/revisoes/lista";
+import { PainelDeRevisoes } from "@/components/revisoes/painel";
 
 export const metadata: Metadata = {
-  title: "Revisões",
-  description: "A agenda de revisão espaçada das missões que você já concluiu no CommitRun.",
+  title: "Code review",
+  description: "Abra pull requests das suas missões e revise o código de outros jogadores.",
 };
 
 export default function RevisoesPage() {
@@ -12,7 +12,7 @@ export default function RevisoesPage() {
     <>
       <Cabecalho />
       <main>
-        <ListaDeRevisoes />
+        <PainelDeRevisoes />
       </main>
     </>
   );
