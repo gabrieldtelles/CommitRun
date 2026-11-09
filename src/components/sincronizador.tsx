@@ -58,11 +58,17 @@ export function Sincronizador() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ missoes: lista }),
-      }).catch(() => undefined);
+      })
+        .then(async (resposta) => {
+          if (!resposta.ok) return;
+          const dados = (await resposta.json()) as { progresso: ProgressoRecebido };
+          if (dados.progresso.xp !== useProgresso.getState().xp) importar(dados.progresso);
+        })
+        .catch(() => undefined);
     }, 800);
 
     return () => clearTimeout(temporizador);
-  }, [pronto, missoes]);
+  }, [pronto, missoes, importar]);
 
   return null;
 }

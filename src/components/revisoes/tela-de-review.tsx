@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { podeRevisar, type ComentarioDeReview, type PullRequest, type Veredito } from "@/lib/pull-request";
+import { useProgresso } from "@/store/progresso";
 import { FormularioDeReview } from "./formulario-de-review";
 import { ListaDeReviews } from "./lista-de-reviews";
 import { VisorDeDiff } from "./visor-de-diff";
 
 export function TelaDeReview({ id }: { id: string }) {
   const router = useRouter();
+  const recarregarProgresso = useProgresso((estado) => estado.recarregar);
   const [pr, setPr] = useState<PullRequest | null>(null);
   const [contaId, setContaId] = useState<string | null>(null);
   const [comentarios, setComentarios] = useState<ComentarioDeReview[]>([]);
@@ -61,6 +63,7 @@ export function TelaDeReview({ id }: { id: string }) {
         return;
       }
 
+      await recarregarProgresso();
       router.push("/revisoes");
       router.refresh();
     } catch {

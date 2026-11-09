@@ -29,6 +29,7 @@ type Estado = {
   revisar: (mission: Mission) => number;
   adotarConta: (contaId: string | null) => void;
   importar: (progresso: ProgressoRecebido) => void;
+  recarregar: () => Promise<void>;
   reiniciar: () => void;
 };
 
@@ -99,6 +100,23 @@ export const useProgresso = create<Estado>()(
           missoes: progresso.missoes,
           atividade: progresso.atividade,
         }),
+
+      recarregar: async () => {
+        if (!get().conta) return;
+
+        try {
+          const resposta = await fetch("/api/progresso", { cache: "no-store" });
+          if (!resposta.ok) return;
+          const dados = (await resposta.json()) as { progresso: ProgressoRecebido };
+          set({
+            xp: dados.progresso.xp,
+            missoes: dados.progresso.missoes,
+            atividade: dados.progresso.atividade,
+          });
+        } catch {
+          // mantém o estado atual quando o servidor não responde
+        }
+      },
 
       reiniciar: () => set({ ...zerado }),
     }),
