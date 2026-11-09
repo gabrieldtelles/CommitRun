@@ -110,10 +110,16 @@ Depois do login o jogo tem três telas, todas protegidas por sessão:
 dias seguidos (com recorde), XP da semana e XP total, a próxima missão com atalho, a campanha
 inteira por capítulo e, na lateral, a meta da semana e as revisões pendentes.
 
-**`/revisoes`** — revisão espaçada. Cada missão concluída volta à agenda em intervalos crescentes
-(2, 7, 21 e 60 dias). Refazer uma missão vencida paga 30% do XP original e empurra a próxima
-revisão para o intervalo seguinte; refazer antes da data vale como treino e não paga nada. Os
-níveis de domínio (recém-aprendido → fixando → consolidado → dominado) aparecem na campanha.
+**`/revisoes`** — code review entre jogadores. Ao concluir uma missão você pode abrir um **pull
+request** com o diff do que fez; ele entra na fila dos outros jogadores, que comentam linha a linha,
+dão um veredito (aprovar ou pedir mudanças) e ganham XP por isso. O autor avalia cada review de 1 a
+5, e essa nota vira XP de bônus e **reputação** para quem revisou. Um PR fecha com dois reviews.
+
+A mesma página traz, no fim, o **treino espaçado**: cada missão concluída volta à agenda em
+intervalos crescentes (2, 7, 21 e 60 dias). Refazer uma missão vencida paga 30% do XP original e
+empurra a próxima revisão para o intervalo seguinte; refazer antes da data vale como treino e não
+paga nada. Os níveis de domínio (recém-aprendido → fixando → consolidado → dominado) aparecem na
+campanha.
 
 **`/ranking`** — todos os jogadores, em duas abas: temporada da semana (reinicia toda segunda) e
 geral. Você entra na lista automaticamente ao concluir qualquer missão, com avatar e usuário do
@@ -131,6 +137,12 @@ API:
 - `POST /api/ranking` recebe `{ missoes: string[] }` e exige sessão (401 sem login). O nome exibido
   é sempre o usuário do GitHub — não há apelido digitável, então ninguém se passa por outro.
 - `GET`/`POST /api/progresso` leem e gravam o progresso da conta logada (401 sem sessão).
+- `GET`/`POST /api/prs` listam e abrem pull requests; `POST /api/prs/<id>/review` registra um review
+  e `POST /api/prs/<id>/avaliar` guarda a nota do autor. Todas exigem sessão.
+
+O XP de review é creditado **pelo servidor**, nunca pelo cliente: ninguém revisa o próprio PR, nem
+revisa duas vezes o mesmo, e um review só é aceito com resumo de 40+ caracteres e pelo menos um
+comentário em linha do diff — comentário apontando para arquivo fora do diff é descartado.
 
 O XP **não** é aceito do cliente: o servidor recalcula a pontuação a partir dos identificadores de
 missão do próprio catálogo, ignorando o que não existe. Há limite de 10 envios por minuto por IP.
