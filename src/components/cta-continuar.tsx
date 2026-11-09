@@ -11,7 +11,7 @@ export function CtaContinuar() {
   const { data: sessao, status } = useSession();
   const parametros = useSearchParams();
   const xp = useProgresso((estado) => estado.xp);
-  const concluidas = useProgresso((estado) => estado.concluidas);
+  const missoes = useProgresso((estado) => estado.missoes);
 
   const logado = Boolean(sessao?.user?.contaId);
   const bloqueado = parametros.get("entrar");
@@ -39,8 +39,8 @@ export function CtaContinuar() {
     );
   }
 
-  const feitas = Object.keys(concluidas).length;
-  const seguinte = proximaMissao({ xp, concluidas }) ?? missions[0];
+  const feitas = Object.keys(missoes).length;
+  const seguinte = proximaMissao({ xp, missoes }) ?? missions[0];
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row">

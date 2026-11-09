@@ -26,7 +26,7 @@ export function useMissao(mission: Mission) {
 
   const machine = jogo.machine;
   const concluir = useProgresso((estado) => estado.concluir);
-  const jaConcluida = useProgresso((estado) => Boolean(estado.concluidas[mission.id]));
+  const jaConcluida = useProgresso((estado) => Boolean(estado.missoes[mission.id]));
 
   const proxima = useMemo(() => {
     const lista = ordenadas();

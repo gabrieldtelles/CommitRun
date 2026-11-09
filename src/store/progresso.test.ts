@@ -6,7 +6,7 @@ const primeira = missions[0]!;
 
 describe("store de progresso", () => {
   beforeEach(() => {
-    useProgresso.setState({ xp: 0, concluidas: {}, conta: null });
+    useProgresso.setState({ xp: 0, missoes: {}, atividade: {}, conta: null });
   });
 
   it("guarda a missão concluída e o xp ganho", () => {
@@ -28,17 +28,21 @@ describe("store de progresso", () => {
     useProgresso.getState().adotarConta(null);
 
     expect(useProgresso.getState().xp).toBe(0);
-    expect(useProgresso.getState().concluidas).toEqual({});
+    expect(useProgresso.getState().missoes).toEqual({});
     expect(useProgresso.getState().conta).toBeNull();
   });
 
   it("apaga progresso órfão criado antes de existir login", () => {
-    useProgresso.setState({ conta: null, xp: 220, concluidas: { c1m1: { xp: 220, dicas: 0, concluidaEm: 1 } } });
+    useProgresso.setState({
+      conta: null,
+      xp: 220,
+      missoes: { c1m1: { concluidaEm: 1, ultimaEm: 1, revisoes: 0, dicas: 0 } },
+    });
 
     useProgresso.getState().adotarConta(null);
 
     expect(useProgresso.getState().xp).toBe(0);
-    expect(useProgresso.getState().concluidas).toEqual({});
+    expect(useProgresso.getState().missoes).toEqual({});
   });
 
   it("não mistura o progresso de duas contas no mesmo navegador", () => {

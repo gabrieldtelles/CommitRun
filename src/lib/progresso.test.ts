@@ -11,7 +11,7 @@ import {
   type Progresso,
 } from "./progresso";
 
-const vazio: Progresso = { xp: 0, concluidas: {} };
+const vazio: Progresso = { xp: 0, missoes: {} };
 
 describe("progresso", () => {
   it("sobe de nível a cada faixa de xp", () => {
@@ -39,7 +39,7 @@ describe("progresso", () => {
     const [primeira, segunda] = ordenadas();
     const progresso: Progresso = {
       xp: primeira!.xp,
-      concluidas: { [primeira!.id]: { xp: primeira!.xp, dicas: 0, concluidaEm: Date.now() } },
+      missoes: { [primeira!.id]: { revisoes: 0, ultimaEm: Date.now() } },
     };
 
     expect(estaDesbloqueada(segunda!, progresso)).toBe(true);

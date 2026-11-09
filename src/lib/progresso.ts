@@ -12,11 +12,9 @@ export const PATENTES = [
   "mantenedor",
 ] as const;
 
-export type Conclusao = { xp: number; dicas: number; concluidaEm: number };
-
 export type Progresso = {
   xp: number;
-  concluidas: Record<string, Conclusao>;
+  missoes: Record<string, { revisoes: number; ultimaEm: number }>;
 };
 
 export function nivel(xp: number): number {
@@ -47,15 +45,15 @@ export function estaDesbloqueada(mission: Mission, progresso: Progresso): boolea
   if (posicao <= 0) return true;
 
   const anterior = lista[posicao - 1];
-  return Boolean(anterior && progresso.concluidas[anterior.id]);
+  return Boolean(anterior && progresso.missoes[anterior.id]);
 }
 
 export function proximaMissao(progresso: Progresso): Mission | null {
-  return ordenadas().find((mission) => !progresso.concluidas[mission.id]) ?? null;
+  return ordenadas().find((mission) => !progresso.missoes[mission.id]) ?? null;
 }
 
 export function percentualConcluido(progresso: Progresso): number {
   const total = missions.length;
   if (total === 0) return 0;
-  return Math.round((Object.keys(progresso.concluidas).length / total) * 100);
+  return Math.round((Object.keys(progresso.missoes).length / total) * 100);
 }

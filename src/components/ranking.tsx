@@ -13,7 +13,7 @@ export function Ranking() {
   const [aviso, setAviso] = useState<string | null>(null);
 
   const { data: sessao, status } = useSession();
-  const concluidas = useProgresso((valor) => valor.concluidas);
+  const concluidas = useProgresso((valor) => valor.missoes);
 
   const logado = Boolean(sessao?.user?.contaId);
   const identidade = sessao?.user?.login ?? sessao?.user?.name ?? "";

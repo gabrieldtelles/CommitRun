@@ -6,11 +6,11 @@ import { estaDesbloqueada, percentualConcluido, proximaMissao } from "@/lib/prog
 import { useProgresso } from "@/store/progresso";
 
 export function Trilha() {
-  const concluidas = useProgresso((estado) => estado.concluidas);
+  const missoes = useProgresso((estado) => estado.missoes);
   const xp = useProgresso((estado) => estado.xp);
   const reiniciar = useProgresso((estado) => estado.reiniciar);
 
-  const progresso = { xp, concluidas };
+  const progresso = { xp, missoes };
   const seguinte = proximaMissao(progresso);
   const percentual = percentualConcluido(progresso);
 
@@ -20,7 +20,7 @@ export function Trilha() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Trilha de missões</h1>
           <p className="mt-2 text-muted">
-            {Object.keys(concluidas).length} de {missions.length} missões concluídas · {percentual}%
+            {Object.keys(missoes).length} de {missions.length} missões concluídas · {percentual}%
           </p>
         </div>
 
@@ -55,7 +55,7 @@ export function Trilha() {
 
               <ul className="mt-5 grid gap-3 sm:grid-cols-2">
                 {doCapitulo.map((mission) => {
-                  const feita = Boolean(concluidas[mission.id]);
+                  const feita = Boolean(missoes[mission.id]);
                   const liberada = estaDesbloqueada(mission, progresso);
 
                   if (!liberada) {
@@ -88,7 +88,7 @@ export function Trilha() {
                         <p className="flex items-center justify-between font-mono text-xs text-muted">
                           <span>missão {mission.order}</span>
                           <span className={feita ? "text-lime" : "text-sky"}>
-                            {feita ? `✓ ${concluidas[mission.id]?.xp} XP` : `${mission.xp} XP`}
+                            {feita ? `✓ ${mission.xp} XP` : `${mission.xp} XP`}
                           </span>
                         </p>
                         <p className="mt-1 font-semibold">{mission.title}</p>
@@ -103,7 +103,7 @@ export function Trilha() {
         })}
       </div>
 
-      {Object.keys(concluidas).length > 0 && (
+      {Object.keys(missoes).length > 0 && (
         <div className="mt-14 border-t border-line pt-6">
           <button
             type="button"
