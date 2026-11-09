@@ -9,10 +9,10 @@ import { xpGanho, type Conclusao } from "@/lib/progresso";
 type Estado = {
   xp: number;
   concluidas: Record<string, Conclusao>;
-  apelido: string;
+  conta: string | null;
   hidratado: boolean;
   concluir: (mission: Mission, dicas: number) => number;
-  definirApelido: (apelido: string) => void;
+  adotarConta: (contaId: string | null) => void;
   importar: (ids: string[]) => void;
   reiniciar: () => void;
 };
@@ -22,7 +22,7 @@ export const useProgresso = create<Estado>()(
     (set, get) => ({
       xp: 0,
       concluidas: {},
-      apelido: "",
+      conta: null,
       hidratado: false,
 
       concluir: (mission, dicas) => {
@@ -41,7 +41,16 @@ export const useProgresso = create<Estado>()(
         return ganho;
       },
 
-      definirApelido: (apelido) => set({ apelido: apelido.trim().slice(0, 24) }),
+      adotarConta: (contaId) =>
+        set((estado) => {
+          const vazio = estado.xp === 0 && Object.keys(estado.concluidas).length === 0;
+
+          if (contaId === null) {
+            return vazio && estado.conta === null ? estado : { conta: null, xp: 0, concluidas: {} };
+          }
+
+          return estado.conta === contaId ? estado : { conta: contaId, xp: 0, concluidas: {} };
+        }),
 
       importar: (ids) =>
         set((estado) => {
@@ -64,7 +73,7 @@ export const useProgresso = create<Estado>()(
     {
       name: "commitrun:progresso",
       version: 1,
-      partialize: ({ xp, concluidas, apelido }) => ({ xp, concluidas, apelido }),
+      partialize: ({ xp, concluidas, conta }) => ({ xp, concluidas, conta }),
       onRehydrateStorage: () => (estado) => {
         if (estado) estado.hidratado = true;
       },

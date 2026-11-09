@@ -8,10 +8,16 @@ export function Sincronizador() {
   const { data: sessao, status } = useSession();
   const concluidas = useProgresso((estado) => estado.concluidas);
   const importar = useProgresso((estado) => estado.importar);
+  const adotarConta = useProgresso((estado) => estado.adotarConta);
   const [contaBaixada, setContaBaixada] = useState<string | null>(null);
 
   const conta = status === "authenticated" ? (sessao?.user?.contaId ?? null) : null;
   const pronto = conta !== null && conta === contaBaixada;
+
+  useEffect(() => {
+    if (status === "loading") return;
+    adotarConta(conta);
+  }, [status, conta, adotarConta]);
 
   useEffect(() => {
     if (!conta || conta === contaBaixada) return;
