@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { nivel, patente, xpNoNivel } from "@/lib/progresso";
@@ -15,9 +16,16 @@ export function Cabecalho() {
   return (
     <header className="border-b border-line bg-surface/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-lime" />
-          CommitRun
+        <Link href="/" aria-label="CommitRun — início" className="flex items-center">
+          <Image
+            src="/logo.svg"
+            alt="CommitRun"
+            width={885}
+            height={256}
+            priority
+            unoptimized
+            className="h-7 w-auto"
+          />
         </Link>
 
         <nav aria-label="Navegação principal" className="flex items-center gap-5 text-sm">

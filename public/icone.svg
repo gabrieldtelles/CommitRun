@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>CommitRun — tile</title>
+  <rect width="256" height="256" rx="58" fill="#0A0C10"/>
+  <g transform="translate(128 128) scale(0.78) translate(-128 -128)">
+    <g transform="skewX(-14)">
+      <rect x="104" y="64" width="50" height="24" rx="12" fill="#FFFFFF"/>
+      <rect x="66" y="116" width="88" height="24" rx="12" fill="#FFFFFF"/>
+      <rect x="88" y="168" width="66" height="24" rx="12" fill="#FFFFFF"/>
+      <rect x="172" y="52" width="46" height="152" rx="15" fill="#A3E635"/>
+    </g>
+  </g>
+</svg>

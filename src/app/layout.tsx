@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   },
   description:
     "Treine git de verdade em um terminal simulado: missões curtas, validação automática e um grafo que mostra cada commit que você cria.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icone.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icone.svg",
+  },
   openGraph: {
     title: "CommitRun — aprenda git resolvendo missões",
     description: "Treine git de verdade em um terminal simulado, missão por missão.",
