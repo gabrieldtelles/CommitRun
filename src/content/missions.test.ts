@@ -41,7 +41,46 @@ const solucoes: Record<string, string[]> = {
   ],
   c4m1: ["git remote add origin https://git.pulso.studio/site.git", "git remote -v"],
   c4m2: ["git add README.md", 'git commit -m "documenta como rodar o site"', "git push -u origin main"],
+  c5m1: ["git revert HEAD"],
+  c5m2: ["git reflog", "__recuperar__"],
+  c6m1: [
+    "git stash",
+    'echo "<h1>Fale com o Pulso</h1>" > contato.html',
+    'echo "<p>contato@pulso.studio</p>" >> contato.html',
+    "git add contato.html",
+    'git commit -m "corrige e-mail de contato"',
+    "git stash pop",
+  ],
+  c6m2: ['git stash -m "galeria do site pela metade"', "git stash list"],
+  c7m1: ["git log experimento --oneline", "__cherry__"],
+  c7m2: ["git switch legenda", "git rebase main"],
+  c8m1: ['git tag -a v1.0.0 -m "primeira versao do site no ar"', "git tag"],
+  c8m2: [
+    "git status",
+    "git add README.md",
+    'git commit -m "documenta como rodar o site"',
+    'git tag -a v1.1.0 -m "segunda entrega com documentacao"',
+    "git push -u origin main",
+  ],
 };
+
+// dois cenários dependem de um hash que só existe em tempo de execução
+function resolverPasso(passo: string, machine: Parameters<typeof runCommand>[0]): string {
+  if (passo === "__recuperar__") {
+    const perdido = machine.repo?.reflog.find((entrada) => entrada.acao.includes("commit:"));
+    return `git reset --hard ${perdido?.hash ?? "HEAD"}`;
+  }
+
+  if (passo === "__cherry__") {
+    const repo = machine.repo;
+    const alvo = Object.values(repo?.commits ?? {}).find(
+      (commit) => commit.message === "corrige link quebrado do menu",
+    );
+    return `git cherry-pick ${alvo?.hash ?? "HEAD"}`;
+  }
+
+  return passo;
+}
 
 describe("catálogo de missões", () => {
   it("não repete slug nem id", () => {
@@ -69,14 +108,19 @@ describe("catálogo de missões", () => {
 
       const machine = createMachine(mission.seed);
       const history: string[] = [];
-      for (const linha of solucoes[id] ?? []) {
+      for (const passo of solucoes[id] ?? []) {
+        const linha = resolverPasso(passo, machine);
         runCommand(machine, linha);
         history.push(linha);
       }
 
       const resultado = mission.validate({ machine, history });
       expect(resultado.message).toBeTruthy();
-      expect(resultado.ok).toBe(true);
+      expect({ id, ok: resultado.ok, porque: resultado.message }).toEqual({
+        id,
+        ok: true,
+        porque: resultado.message,
+      });
     },
   );
 });

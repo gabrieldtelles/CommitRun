@@ -25,4 +25,28 @@ export const chapters: Chapter[] = [
     subtitle: "O código precisa sair da sua máquina.",
     topics: "remote · push · pull",
   },
+  {
+    number: 5,
+    title: "Consertar sem apagar",
+    subtitle: "Erro que já é público se corrige, não se esconde.",
+    topics: "revert · reflog",
+  },
+  {
+    number: 6,
+    title: "Trabalho pela metade",
+    subtitle: "O urgente chegou e o seu código ainda não está pronto.",
+    topics: "stash · stash list · stash pop",
+  },
+  {
+    number: 7,
+    title: "Histórico limpo",
+    subtitle: "Entregar uma história que a próxima pessoa consiga ler.",
+    topics: "cherry-pick · rebase",
+  },
+  {
+    number: 8,
+    title: "Hora de entregar",
+    subtitle: "Fechar a versão e publicar como um time faz.",
+    topics: "tag · push · release",
+  },
 ];
