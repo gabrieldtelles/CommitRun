@@ -13,13 +13,12 @@ import {
   type Review,
   type Veredito,
 } from "@/lib/pull-request";
-import { obterDeposito } from "./deposito";
-import { creditarXp } from "./progresso-do-usuario";
+import { consultar, umaLinha } from "./bd";
+import { creditarXp, garantirJogador, type Jogador } from "./progresso-do-usuario";
 
-const MAPA = "commitrun:prs";
 const LIMITE_DE_LISTA = 60;
 
-export type Autor = { contaId: string; apelido: string; avatar: string | null };
+export type Autor = Jogador;
 
 export type DadosDoPr = {
   missaoId: string;
@@ -53,31 +52,111 @@ function limitar(texto: string, maximo: number): string {
   return texto.trim().slice(0, maximo);
 }
 
-function converter(bruto: string): PullRequest | null {
-  try {
-    const dados = JSON.parse(bruto) as PullRequest;
-    return typeof dados?.id === "string" && Array.isArray(dados.arquivos) ? dados : null;
-  } catch {
-    return null;
+type LinhaPr = {
+  id: string;
+  autor_id: string;
+  apelido: string;
+  avatar: string | null;
+  missao_id: string;
+  titulo: string;
+  descricao: string;
+  arquivos: ArquivoDoPr[];
+  criado_em: Date;
+};
+
+type LinhaReview = {
+  id: string;
+  pr_id: string;
+  revisor_id: string;
+  apelido: string;
+  avatar: string | null;
+  veredito: Veredito;
+  resumo: string;
+  comentarios: ComentarioDeReview[];
+  nota: number | null;
+  xp: number;
+  criado_em: Date;
+};
+
+function montarReview(linha: LinhaReview): Review {
+  return {
+    id: linha.id,
+    revisorId: linha.revisor_id,
+    revisorApelido: linha.apelido,
+    revisorAvatar: linha.avatar,
+    veredito: linha.veredito,
+    resumo: linha.resumo,
+    comentarios: linha.comentarios ?? [],
+    criadoEm: new Date(linha.criado_em).getTime(),
+    nota: linha.nota === null ? null : Number(linha.nota),
+    xp: Number(linha.xp),
+  };
+}
+
+function montarPr(linha: LinhaPr, reviews: Review[]): PullRequest {
+  return {
+    id: linha.id,
+    autorId: linha.autor_id,
+    autorApelido: linha.apelido,
+    autorAvatar: linha.avatar,
+    missaoId: linha.missao_id,
+    missaoTitulo: catalogo.get(linha.missao_id)?.title ?? linha.missao_id,
+    titulo: linha.titulo,
+    descricao: linha.descricao,
+    arquivos: linha.arquivos ?? [],
+    criadoEm: new Date(linha.criado_em).getTime(),
+    reviews,
+  };
+}
+
+async function reviewsDe(prIds: string[]): Promise<Map<string, Review[]>> {
+  const mapa = new Map<string, Review[]>();
+  if (prIds.length === 0) return mapa;
+
+  const linhas = await consultar<LinhaReview>(
+    `SELECT r.*, j.apelido, j.avatar
+     FROM reviews r
+     JOIN jogadores j ON j.conta_id = r.revisor_id
+     WHERE r.pr_id = ANY($1)
+     ORDER BY r.criado_em ASC`,
+    [prIds],
+  );
+
+  for (const linha of linhas) {
+    const atuais = mapa.get(linha.pr_id) ?? [];
+    atuais.push(montarReview(linha));
+    mapa.set(linha.pr_id, atuais);
   }
+
+  return mapa;
 }
 
 export async function listarPrs(): Promise<PullRequest[]> {
-  const valores = await obterDeposito().listarValores(MAPA);
-  return valores
-    .map(converter)
-    .filter((item): item is PullRequest => item !== null)
-    .sort((a, b) => b.criadoEm - a.criadoEm)
-    .slice(0, LIMITE_DE_LISTA);
+  const linhas = await consultar<LinhaPr>(
+    `SELECT p.*, j.apelido, j.avatar
+     FROM pull_requests p
+     JOIN jogadores j ON j.conta_id = p.autor_id
+     ORDER BY p.criado_em DESC
+     LIMIT ${LIMITE_DE_LISTA}`,
+  );
+
+  const reviews = await reviewsDe(linhas.map((linha) => linha.id));
+  return linhas.map((linha) => montarPr(linha, reviews.get(linha.id) ?? []));
 }
 
 export async function lerPr(id: string): Promise<PullRequest | null> {
-  const bruto = await obterDeposito().obterCampo(MAPA, id);
-  return bruto ? converter(bruto) : null;
-}
+  const linha = await umaLinha<LinhaPr>(
+    `SELECT p.*, j.apelido, j.avatar
+     FROM pull_requests p
+     JOIN jogadores j ON j.conta_id = p.autor_id
+     WHERE p.id = $1`,
+    [id],
+  );
 
-async function gravar(pr: PullRequest): Promise<void> {
-  await obterDeposito().definirCampo(MAPA, pr.id, JSON.stringify(pr));
+  if (!linha) return null;
+
+  const reviews = await reviewsDe([id]);
+  return montarPr(linha, reviews.get(id) ?? []);
 }
 
 export async function abrirPr(autor: Autor, dados: DadosDoPr): Promise<PullRequest> {
@@ -94,29 +173,23 @@ export async function abrirPr(autor: Autor, dados: DadosDoPr): Promise<PullReque
   const titulo = limitar(dados.titulo, 120);
   if (titulo.length < 5) throw new ErroDeRegra("o título precisa explicar a mudança");
 
-  const existentes = await listarPrs();
-  const abertoDaMesmaMissao = existentes.find(
-    (pr) => pr.autorId === autor.contaId && pr.missaoId === dados.missaoId,
+  await garantirJogador(autor);
+
+  const id = identificador();
+  const inserido = await consultar(
+    `INSERT INTO pull_requests (id, autor_id, missao_id, titulo, descricao, arquivos)
+     VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+     ON CONFLICT (autor_id, missao_id) DO NOTHING
+     RETURNING id`,
+    [id, autor.contaId, mission.id, titulo, limitar(dados.descricao, 600), JSON.stringify(arquivos)],
   );
-  if (abertoDaMesmaMissao) {
+
+  if (inserido.length === 0) {
     throw new ErroDeRegra("você já abriu um pull request desta missão", 409);
   }
 
-  const pr: PullRequest = {
-    id: identificador(),
-    autorId: autor.contaId,
-    autorApelido: autor.apelido,
-    autorAvatar: autor.avatar,
-    missaoId: mission.id,
-    missaoTitulo: mission.title,
-    titulo,
-    descricao: limitar(dados.descricao, 600),
-    arquivos,
-    criadoEm: Date.now(),
-    reviews: [],
-  };
-
-  await gravar(pr);
+  const pr = await lerPr(id);
+  if (!pr) throw new ErroDeRegra("não foi possível abrir o pull request", 503);
   return pr;
 }
 
@@ -147,24 +220,30 @@ export async function registrarReview(
   const faltas = qualidadeDoReview(resumo, comentarios);
   if (faltas.length > 0) throw new ErroDeRegra(faltas.join(" e "));
 
-  const review: Review = {
-    id: identificador(),
-    revisorId: revisor.contaId,
-    revisorApelido: revisor.apelido,
-    revisorAvatar: revisor.avatar,
-    veredito: dados.veredito,
-    resumo,
-    comentarios,
-    criadoEm: Date.now(),
-    nota: null,
-    xp: XP_POR_REVIEW,
-  };
+  await garantirJogador(revisor);
 
-  const atualizado: PullRequest = { ...pr, reviews: [...pr.reviews, review] };
-  await gravar(atualizado);
+  const inserido = await consultar(
+    `INSERT INTO reviews (id, pr_id, revisor_id, veredito, resumo, comentarios, xp)
+     VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
+     ON CONFLICT (pr_id, revisor_id) DO NOTHING
+     RETURNING id`,
+    [
+      identificador(),
+      prId,
+      revisor.contaId,
+      dados.veredito,
+      resumo,
+      JSON.stringify(comentarios),
+      XP_POR_REVIEW,
+    ],
+  );
+
+  if (inserido.length === 0) throw new ErroDeRegra("você já revisou este pull request", 409);
+
   await creditarXp(revisor.contaId, XP_POR_REVIEW);
 
-  return { pr: atualizado, xp: XP_POR_REVIEW };
+  const atualizado = await lerPr(prId);
+  return { pr: atualizado as PullRequest, xp: XP_POR_REVIEW };
 }
 
 export async function avaliarReview(
@@ -184,17 +263,17 @@ export async function avaliarReview(
   const limitada = Math.min(5, Math.max(1, Math.round(nota)));
   const bonus = xpDaAvaliacao(limitada);
 
-  const atualizado: PullRequest = {
-    ...pr,
-    reviews: pr.reviews.map((item) =>
-      item.id === reviewId ? { ...item, nota: limitada, xp: item.xp + bonus } : item,
-    ),
-  };
+  const atualizados = await consultar(
+    `UPDATE reviews SET nota = $2, xp = xp + $3
+     WHERE id = $1 AND nota IS NULL
+     RETURNING id`,
+    [reviewId, limitada, bonus],
+  );
 
-  await gravar(atualizado);
+  if (atualizados.length === 0) throw new ErroDeRegra("este review já foi avaliado", 409);
   if (bonus > 0) await creditarXp(review.revisorId, bonus);
 
-  return atualizado;
+  return (await lerPr(prId)) as PullRequest;
 }
 
 export function organizarPara(prs: PullRequest[], contaId: string) {

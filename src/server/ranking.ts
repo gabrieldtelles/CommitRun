@@ -1,6 +1,5 @@
-import { obterDeposito } from "./deposito";
-
-const MAPA = "commitrun:ranking";
+import { chaveDoDia, fimDaSemana, inicioDaSemana } from "@/lib/temporada";
+import { consultar } from "./bd";
 
 export type Pontuacao = {
   contaId: string;
@@ -10,46 +9,49 @@ export type Pontuacao = {
   xpDaSemana: number;
   missoes: number;
   sequencia: number;
-  atualizadoEm: number;
 };
 
 export type Periodo = "geral" | "semana";
 
-function converter(bruto: string): Pontuacao | null {
-  try {
-    const dados = JSON.parse(bruto) as Partial<Pontuacao>;
-    if (typeof dados.apelido !== "string" || typeof dados.xp !== "number") return null;
-    return {
-      contaId: String(dados.contaId ?? ""),
-      apelido: dados.apelido,
-      avatar: typeof dados.avatar === "string" ? dados.avatar : null,
-      xp: dados.xp,
-      xpDaSemana: Number(dados.xpDaSemana) || 0,
-      missoes: Number(dados.missoes) || 0,
-      sequencia: Number(dados.sequencia) || 0,
-      atualizadoEm: Number(dados.atualizadoEm) || 0,
-    };
-  } catch {
-    return null;
-  }
-}
+const LIMITE = 50;
 
-export function ordenarPor(periodo: Periodo) {
-  return (a: Pontuacao, b: Pontuacao): number => {
-    const chave = periodo === "semana" ? "xpDaSemana" : "xp";
-    return b[chave] - a[chave] || b.missoes - a.missoes || a.atualizadoEm - b.atualizadoEm;
-  };
-}
+type LinhaRanking = {
+  conta_id: string;
+  apelido: string;
+  avatar: string | null;
+  xp: number;
+  xp_semana: number;
+  total_missoes: number;
+  sequencia: number;
+};
 
-export async function listarRanking(periodo: Periodo = "geral"): Promise<Pontuacao[]> {
-  const valores = await obterDeposito().listarValores(MAPA);
-  return valores
-    .map(converter)
-    .filter((item): item is Pontuacao => item !== null)
-    .filter((item) => (periodo === "semana" ? item.xpDaSemana > 0 : item.xp > 0))
-    .sort(ordenarPor(periodo));
-}
+export async function listarRanking(
+  periodo: Periodo = "geral",
+  agora = Date.now(),
+): Promise<Pontuacao[]> {
+  const ordem = periodo === "semana" ? "xp_semana" : "j.xp";
+  const filtro = periodo === "semana" ? "COALESCE(SUM(a.xp), 0) > 0" : "j.xp > 0";
 
-export async function registrarPontuacao(pontuacao: Pontuacao): Promise<void> {
-  await obterDeposito().definirCampo(MAPA, pontuacao.contaId, JSON.stringify(pontuacao));
+  const linhas = await consultar<LinhaRanking>(
+    `SELECT j.conta_id, j.apelido, j.avatar, j.xp, j.total_missoes, j.sequencia,
+            COALESCE(SUM(a.xp), 0)::int AS xp_semana
+     FROM jogadores j
+     LEFT JOIN atividade a
+       ON a.conta_id = j.conta_id AND a.dia BETWEEN $1 AND $2
+     GROUP BY j.conta_id
+     HAVING ${filtro}
+     ORDER BY ${ordem} DESC, j.total_missoes DESC, j.atualizado_em ASC
+     LIMIT ${LIMITE}`,
+    [chaveDoDia(inicioDaSemana(agora)), chaveDoDia(fimDaSemana(agora))],
+  );
+
+  return linhas.map((linha) => ({
+    contaId: linha.conta_id,
+    apelido: linha.apelido,
+    avatar: linha.avatar,
+    xp: Number(linha.xp),
+    xpDaSemana: Number(linha.xp_semana),
+    missoes: Number(linha.total_missoes),
+    sequencia: Number(linha.sequencia),
+  }));
 }

@@ -4,11 +4,11 @@ import { auth } from "@/auth";
 import { missions } from "@/content/missions";
 import { dentroDoLimite } from "@/server/limite-de-taxa";
 import {
+  garantirJogador,
   lerProgresso,
   resumoDoProgresso,
   sincronizarProgresso,
 } from "@/server/progresso-do-usuario";
-import { registrarPontuacao } from "@/server/ranking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -68,21 +68,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const progresso = await sincronizarProgresso(contaId, dados.data.missoes);
-    const resumo = resumoDoProgresso(progresso);
-
-    await registrarPontuacao({
+    await garantirJogador({
       contaId,
       apelido: sessao.user.login ?? sessao.user.name ?? "jogador",
       avatar: sessao.user.image ?? null,
-      xp: resumo.xp,
-      xpDaSemana: resumo.xpDaSemana,
-      missoes: resumo.missoes,
-      sequencia: resumo.sequencia.atual,
-      atualizadoEm: Date.now(),
     });
 
-    return NextResponse.json({ progresso, resumo }, { headers: semCache });
+    const progresso = await sincronizarProgresso(contaId, dados.data.missoes);
+
+    return NextResponse.json(
+      { progresso, resumo: resumoDoProgresso(progresso) },
+      { headers: semCache },
+    );
   } catch {
     return NextResponse.json(
       { erro: "não foi possível salvar o progresso" },

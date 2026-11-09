@@ -92,6 +92,7 @@ A aplicação sobe em `http://localhost:3000`.
 | `npm run test` | testes do engine, das missões, do progresso e do code review |
 | `npm run typecheck` | checagem de tipos |
 | `npm run lint` | análise estática |
+| `npm run db:migrate` | cria as tabelas no banco |
 
 ## Configuração
 
@@ -103,23 +104,26 @@ O login com GitHub é **obrigatório para jogar** — o progresso pertence à co
 2. Copie `.env.example` para `.env.local` e preencha:
 
 ```bash
+DATABASE_URL=                     # connection string do Neon
 AUTH_GITHUB_ID=seu_client_id
 AUTH_GITHUB_SECRET=seu_client_secret
 AUTH_SECRET=                      # npx auth secret
-
-# persistência (obrigatória em produção)
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
 ```
 
-Em desenvolvimento, sem Upstash, os dados são gravados em `.commitrun/dados.json`. **Em produção o
-Redis é obrigatório**: cada instância serverless tem a própria memória, então sem ele o progresso de
-todo mundo se perde entre deploys.
+Depois crie as tabelas:
+
+```bash
+npm run db:migrate
+```
+
+Sem `DATABASE_URL`, a aplicação sobe com um Postgres em memória — dá para rodar o projeto sem banco
+nenhum, mas os dados somem ao reiniciar. **Em produção o banco é obrigatório**: cada instância
+serverless tem a própria memória, então sem ele o progresso de todo mundo se perde.
 
 ## Deploy na Vercel
 
 1. Importe o repositório em vercel.com/new (Next.js é detectado sozinho)
-2. Crie o Redis em Storage → Upstash e cole as duas variáveis
+2. Crie o Postgres em Storage → Neon e cole a `DATABASE_URL` (depois rode `npm run db:migrate`)
 3. Adicione `https://seu-dominio.vercel.app/api/auth/callback/github` no OAuth App
 4. Configure `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_SECRET` e `AUTH_URL`
 
@@ -132,7 +136,8 @@ src/
 ├── content/     catálogo de missões, cenários iniciais e regras de validação
 ├── components/  terminal, grafo de commits, hangar, code review, ranking
 ├── lib/         XP, níveis, temporada semanal, revisão espaçada, pull requests
-├── server/      depósito de dados, progresso por conta, ranking e reviews
+├── server/      camada de banco, progresso por conta, ranking e reviews
+├── migrations/  schema do Postgres
 ├── proxy.ts     bloqueia as rotas de jogo para quem não tem sessão
 └── app/         rotas do Next.js e a API
 ```
@@ -171,7 +176,8 @@ automaticamente.
 
 ## Stack
 
-Next.js (App Router) · React · TypeScript strict · Tailwind CSS · Zustand · Zod · Auth.js · Vitest
+Next.js (App Router) · React · TypeScript strict · Tailwind CSS · Zustand · Zod · Auth.js ·
+Neon Postgres · Vitest
 
 ---
 

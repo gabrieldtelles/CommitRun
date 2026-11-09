@@ -4,7 +4,11 @@ import { lerProgresso } from "./progresso-do-usuario";
 import { abrirPr, avaliarReview, listarPrs, organizarPara, registrarReview } from "./prs";
 
 let sequencial = 0;
-const conta = (nome: string) => ({ contaId: `${nome}-${(sequencial += 1)}`, apelido: nome, avatar: null });
+const conta = (nome: string) => ({
+  contaId: `${nome}-${(sequencial += 1)}`,
+  apelido: nome,
+  avatar: null,
+});
 
 const dadosDoPr = {
   missaoId: "c1m3",

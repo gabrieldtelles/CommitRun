@@ -2,18 +2,27 @@ import { describe, expect, it } from "vitest";
 import { missions } from "@/content/missions";
 import { xpDeRevisao } from "@/lib/revisao";
 import { chaveDoDia } from "@/lib/temporada";
-import { lerProgresso, resumoDoProgresso, sincronizarProgresso } from "./progresso-do-usuario";
+import {
+  garantirJogador,
+  resumoDoProgresso,
+  sincronizarProgresso,
+} from "./progresso-do-usuario";
 
 const UM_DIA = 86_400_000;
 const primeira = missions[0]!;
 const segunda = missions[1]!;
 
 let sequencial = 0;
-const novaConta = () => `conta-${(sequencial += 1)}`;
+
+async function novaConta(): Promise<string> {
+  const contaId = `conta-${(sequencial += 1)}`;
+  await garantirJogador({ contaId, apelido: contaId, avatar: null });
+  return contaId;
+}
 
 describe("progresso salvo no servidor", () => {
   it("grava a missão concluída e calcula o xp pelo catálogo", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     const progresso = await sincronizarProgresso(conta, [{ id: primeira.id }]);
 
     expect(Object.keys(progresso.missoes)).toEqual([primeira.id]);
@@ -21,7 +30,7 @@ describe("progresso salvo no servidor", () => {
   });
 
   it("ignora identificadores que não existem", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     const progresso = await sincronizarProgresso(conta, [{ id: "c9m9" }, { id: "../etc" }]);
 
     expect(progresso.missoes).toEqual({});
@@ -29,7 +38,7 @@ describe("progresso salvo no servidor", () => {
   });
 
   it("nunca remove missões já conquistadas", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     await sincronizarProgresso(conta, [{ id: primeira.id }, { id: segunda.id }]);
     const progresso = await sincronizarProgresso(conta, []);
 
@@ -37,7 +46,7 @@ describe("progresso salvo no servidor", () => {
   });
 
   it("recusa revisão antes da data agendada", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     const agora = Date.now();
     await sincronizarProgresso(conta, [{ id: primeira.id }], agora);
 
@@ -48,7 +57,7 @@ describe("progresso salvo no servidor", () => {
   });
 
   it("aceita uma revisão por vez quando a agenda vence", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     const inicio = Date.now();
     await sincronizarProgresso(conta, [{ id: primeira.id }], inicio);
 
@@ -60,7 +69,7 @@ describe("progresso salvo no servidor", () => {
   });
 
   it("registra o xp ganho no dia para alimentar sequência e temporada", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     const agora = Date.now();
     const progresso = await sincronizarProgresso(conta, [{ id: primeira.id }], agora);
 
@@ -68,32 +77,18 @@ describe("progresso salvo no servidor", () => {
     expect(resumoDoProgresso(progresso, agora).sequencia.atual).toBe(1);
   });
 
-  it("migra o formato antigo de lista de identificadores", async () => {
-    const conta = novaConta();
-    const { obterDeposito } = await import("./deposito");
-    await obterDeposito().definirCampo(
-      "commitrun:progresso",
-      conta,
-      JSON.stringify({ missoes: [primeira.id, "inexistente"], xp: 99999 }),
-    );
-
-    const progresso = await lerProgresso(conta);
-
-    expect(Object.keys(progresso.missoes)).toEqual([primeira.id]);
-    expect(progresso.xp).toBe(primeira.xp);
-  });
 });
 
 describe("xp e dicas", () => {
   it("desconta o xp conforme as dicas usadas", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     const progresso = await sincronizarProgresso(conta, [{ id: primeira.id, dicas: 2 }]);
 
     expect(progresso.xp).toBe(Math.round(primeira.xp * 0.8));
   });
 
   it("não deixa apagar as dicas para inflar o xp depois", async () => {
-    const conta = novaConta();
+    const conta = await novaConta();
     await sincronizarProgresso(conta, [{ id: primeira.id, dicas: 3 }]);
 
     const progresso = await sincronizarProgresso(conta, [{ id: primeira.id, dicas: 0 }]);
@@ -106,7 +101,7 @@ describe("xp e dicas", () => {
 describe("crédito de xp fora das missões", () => {
   it("soma xp extra e registra no dia", async () => {
     const { creditarXp } = await import("./progresso-do-usuario");
-    const conta = novaConta();
+    const conta = await novaConta();
     const agora = Date.now();
 
     await sincronizarProgresso(conta, [{ id: primeira.id }], agora);
@@ -118,7 +113,7 @@ describe("crédito de xp fora das missões", () => {
 
   it("não perde o xp extra quando o progresso é sincronizado de novo", async () => {
     const { creditarXp } = await import("./progresso-do-usuario");
-    const conta = novaConta();
+    const conta = await novaConta();
 
     await sincronizarProgresso(conta, [{ id: primeira.id }]);
     await creditarXp(conta, 60);
@@ -129,7 +124,7 @@ describe("crédito de xp fora das missões", () => {
 
   it("ignora crédito negativo", async () => {
     const { creditarXp } = await import("./progresso-do-usuario");
-    const conta = novaConta();
+    const conta = await novaConta();
     const progresso = await creditarXp(conta, -500);
     expect(progresso.xp).toBe(0);
   });
