@@ -31,8 +31,8 @@ src/
 ├── core/        engine: sistema de arquivos virtual, objetos git e comandos
 │   └── git/     init, add, commit, log, diff, branch, merge, remote, push, pull
 ├── content/     catálogo de missões, cenários iniciais e regras de validação
-├── components/  terminal, grafo de commits, briefing, editor, trilha e sessão
-├── lib/         regras de XP, níveis, desbloqueio e layout do grafo
+├── components/  terminal, grafo, briefing, editor, hangar, revisões, ranking e sessão
+├── lib/         XP, níveis, desbloqueio, temporada semanal, revisão e layout do grafo
 ├── server/      depósito de dados, ranking, progresso por conta e limite de taxa
 ├── proxy.ts     bloqueia as rotas de jogo para quem não tem sessão
 └── app/         rotas do Next.js e a API
@@ -101,6 +101,26 @@ Settings → Environment Variables, mais `AUTH_URL` com a URL pública.
 Ao entrar, o progresso salvo na conta é baixado pela rota `/api/progresso` e, a partir daí, cada
 missão concluída é gravada de volta (união das missões, nunca remoção). Dá para começar no notebook
 e continuar no celular.
+
+## Hangar, revisões e ranking
+
+Depois do login o jogo tem três telas, todas protegidas por sessão:
+
+**`/hangar`** — a central. Mostra nível e patente, barra de XP para o próximo nível, sequência de
+dias seguidos (com recorde), XP da semana e XP total, a próxima missão com atalho, a campanha
+inteira por capítulo e, na lateral, a meta da semana e as revisões pendentes.
+
+**`/revisoes`** — revisão espaçada. Cada missão concluída volta à agenda em intervalos crescentes
+(2, 7, 21 e 60 dias). Refazer uma missão vencida paga 30% do XP original e empurra a próxima
+revisão para o intervalo seguinte; refazer antes da data vale como treino e não paga nada. Os
+níveis de domínio (recém-aprendido → fixando → consolidado → dominado) aparecem na campanha.
+
+**`/ranking`** — todos os jogadores, em duas abas: temporada da semana (reinicia toda segunda) e
+geral. Você entra na lista automaticamente ao concluir qualquer missão, com avatar e usuário do
+GitHub, e a sua linha fica destacada.
+
+A meta da semana é gerada pelo número da semana, igual para todos os jogadores: avançar na
+campanha, fechar revisões ou praticar em N dias diferentes. Vale XP de bônus.
 
 ## Ranking
 
