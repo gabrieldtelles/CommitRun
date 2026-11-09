@@ -64,6 +64,50 @@ class DepositoUpstash implements Deposito {
   }
 }
 
+class DepositoArquivo implements Deposito {
+  private cache: Record<string, Record<string, string>> | null = null;
+
+  constructor(private readonly caminho: string) {}
+
+  private async ler(): Promise<Record<string, Record<string, string>>> {
+    if (this.cache) return this.cache;
+
+    try {
+      const { readFile } = await import("node:fs/promises");
+      this.cache = JSON.parse(await readFile(this.caminho, "utf8")) as Record<
+        string,
+        Record<string, string>
+      >;
+    } catch {
+      this.cache = {};
+    }
+
+    return this.cache;
+  }
+
+  private async gravar(): Promise<void> {
+    const { mkdir, writeFile } = await import("node:fs/promises");
+    const { dirname } = await import("node:path");
+
+    await mkdir(dirname(this.caminho), { recursive: true });
+    await writeFile(this.caminho, JSON.stringify(this.cache ?? {}, null, 2), "utf8");
+  }
+
+  async obterCampo(mapa: string, campo: string): Promise<string | null> {
+    return (await this.ler())[mapa]?.[campo] ?? null;
+  }
+
+  async definirCampo(mapa: string, campo: string, valor: string): Promise<void> {
+    const dados = await this.ler();
+    dados[mapa] = { ...dados[mapa], [campo]: valor };
+    await this.gravar();
+  }
+
+  async listarValores(mapa: string): Promise<string[]> {
+    return Object.values((await this.ler())[mapa] ?? {});
+  }
+}
+
 let instancia: Deposito | null = null;
 
 export function obterDeposito(): Deposito {
@@ -72,7 +116,18 @@ export function obterDeposito(): Deposito {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  instancia = url && token ? new DepositoUpstash(url, token) : new DepositoMemoria();
+  if (url && token) {
+    instancia = new DepositoUpstash(url, token);
+    return instancia;
+  }
+
+  const emDesenvolvimento =
+    process.env.NODE_ENV === "development" && process.env.NEXT_RUNTIME === "nodejs";
+
+  instancia = emDesenvolvimento
+    ? new DepositoArquivo(".commitrun/dados.json")
+    : new DepositoMemoria();
+
   return instancia;
 }
 

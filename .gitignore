@@ -11,3 +11,6 @@ next-env.d.ts
 
 # gerado pelo next
 AGENTS.md
+
+# dados locais de desenvolvimento
+.commitrun
