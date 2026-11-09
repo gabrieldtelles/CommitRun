@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { missions } from "@/content/missions";
 import type { Mission } from "@/content/types";
 import { xpGanho, type Conclusao } from "@/lib/progresso";
 
@@ -12,6 +13,7 @@ type Estado = {
   hidratado: boolean;
   concluir: (mission: Mission, dicas: number) => number;
   definirApelido: (apelido: string) => void;
+  importar: (ids: string[]) => void;
   reiniciar: () => void;
 };
 
@@ -40,6 +42,22 @@ export const useProgresso = create<Estado>()(
       },
 
       definirApelido: (apelido) => set({ apelido: apelido.trim().slice(0, 24) }),
+
+      importar: (ids) =>
+        set((estado) => {
+          const concluidas = { ...estado.concluidas };
+          const agora = Date.now();
+
+          for (const id of ids) {
+            if (concluidas[id]) continue;
+            const mission = missions.find((item) => item.id === id);
+            if (!mission) continue;
+            concluidas[id] = { xp: mission.xp, dicas: 0, concluidaEm: agora };
+          }
+
+          const xp = Object.values(concluidas).reduce((soma, item) => soma + item.xp, 0);
+          return { concluidas, xp };
+        }),
 
       reiniciar: () => set({ xp: 0, concluidas: {} }),
     }),
