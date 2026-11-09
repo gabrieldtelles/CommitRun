@@ -18,6 +18,7 @@ export type MachineSeed = {
     commits?: SeedCommit[];
     branches?: SeedBranch[];
     staged?: string[];
+    descartado?: SeedCommit;
     remote?: { name: string; url: string; synced?: boolean };
   };
 };
@@ -75,6 +76,16 @@ export function createMachine(seed: MachineSeed): Machine {
     const fromSnapshot = fromHash ? (repo.commits[fromHash]?.snapshot ?? {}) : {};
     const tip = applyCommits(repo, { hash: fromHash ?? null, snapshot: fromSnapshot }, branch.commits);
     if (tip.hash) repo.branches[branch.name] = tip.hash;
+  }
+
+  if (seed.repo.descartado && base.hash) {
+    const perdido = applyCommits(repo, base, [seed.repo.descartado]);
+    if (perdido.hash) {
+      repo.reflog = [
+        { hash: base.hash, acao: "reset: moving to HEAD~1", em: Date.now() - 300_000 },
+        { hash: perdido.hash, acao: `commit: ${seed.repo.descartado.message}`, em: Date.now() - 600_000 },
+      ];
+    }
   }
 
   const mainTip = repo.branches[main];
