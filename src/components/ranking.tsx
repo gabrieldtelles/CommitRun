@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import type { Pontuacao } from "@/server/ranking";
 import { useProgresso } from "@/store/progresso";
@@ -12,13 +12,12 @@ export function Ranking() {
   const [estado, setEstado] = useState<Estado>("carregando");
   const [aviso, setAviso] = useState<string | null>(null);
 
-  const { data: sessao } = useSession();
-  const apelido = useProgresso((valor) => valor.apelido);
-  const definirApelido = useProgresso((valor) => valor.definirApelido);
+  const { data: sessao, status } = useSession();
   const concluidas = useProgresso((valor) => valor.concluidas);
 
   const logado = Boolean(sessao?.user?.contaId);
-  const identidade = sessao?.user?.login ?? sessao?.user?.name ?? apelido;
+  const identidade = sessao?.user?.login ?? sessao?.user?.name ?? "";
+  const total = Object.keys(concluidas).length;
 
   useEffect(() => {
     let ativo = true;
@@ -43,8 +42,7 @@ export function Ranking() {
     };
   }, []);
 
-  const enviar = async (evento: React.FormEvent) => {
-    evento.preventDefault();
+  const enviar = async () => {
     setAviso(null);
     setEstado("enviando");
 
@@ -52,14 +50,14 @@ export function Ranking() {
       const resposta = await fetch("/api/ranking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          logado
-            ? { missoes: Object.keys(concluidas) }
-            : { apelido, missoes: Object.keys(concluidas) },
-        ),
+        body: JSON.stringify({ missoes: Object.keys(concluidas) }),
       });
 
-      const dados = (await resposta.json()) as { erro?: string; ranking?: Pontuacao[]; posicao?: number };
+      const dados = (await resposta.json()) as {
+        erro?: string;
+        ranking?: Pontuacao[];
+        posicao?: number;
+      };
 
       if (!resposta.ok) {
         setAviso(dados.erro ?? "não foi possível enviar agora");
@@ -76,49 +74,47 @@ export function Ranking() {
     }
   };
 
-  const total = Object.keys(concluidas).length;
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Ranking</h1>
       <p className="mt-2 text-muted">
-        O XP é recalculado no servidor a partir das missões concluídas — não dá para inventar
-        pontuação. Quem entra com o GitHub aparece com selo de verificado.
+        O XP é recalculado no servidor a partir das missões concluídas na sua conta — não dá para
+        inventar pontuação.
       </p>
 
-      <form onSubmit={enviar} className="mt-8 flex flex-col gap-3 sm:flex-row">
-        {logado ? (
-          <p className="flex flex-1 items-center rounded-lg border border-line bg-surface px-4 py-2.5 text-sm">
-            Enviando como <strong className="mx-1 font-semibold text-lime">{identidade}</strong>
-            (conta do GitHub)
-          </p>
-        ) : (
-          <div className="flex-1">
-            <label htmlFor="apelido" className="sr-only">
-              Seu apelido no ranking
-            </label>
-            <input
-              id="apelido"
-              value={apelido}
-              onChange={(evento) => definirApelido(evento.target.value)}
-              maxLength={24}
-              placeholder="seu apelido"
-              className="w-full rounded-lg border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-lime"
-            />
+      <div className="mt-8 rounded-xl border border-line bg-surface p-4">
+        {status === "loading" && <p className="text-sm text-muted">Verificando sua sessão...</p>}
+
+        {status !== "loading" && !logado && (
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted">Entre com o GitHub para registrar seu progresso.</p>
+            <button
+              type="button"
+              onClick={() => void signIn("github")}
+              className="rounded-lg bg-lime px-5 py-2.5 text-sm font-semibold text-base transition-colors hover:bg-lime-soft"
+            >
+              Entrar com GitHub
+            </button>
           </div>
         )}
-        <button
-          type="submit"
-          disabled={(!logado && apelido.trim().length < 2) || total === 0 || estado === "enviando"}
-          className="rounded-lg bg-lime px-5 py-2.5 text-sm font-semibold text-base transition-colors hover:bg-lime-soft disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {estado === "enviando" ? "Enviando..." : `Enviar ${total} missão(ões)`}
-        </button>
-      </form>
 
-      <p className="mt-2 text-xs text-muted">
-        O nome enviado fica visível para quem abrir esta página.
-      </p>
+        {logado && (
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm">
+              Enviando como <strong className="font-semibold text-lime">{identidade}</strong> ·{" "}
+              {total} missão(ões) concluída(s)
+            </p>
+            <button
+              type="button"
+              onClick={() => void enviar()}
+              disabled={total === 0 || estado === "enviando"}
+              className="rounded-lg bg-lime px-5 py-2.5 text-sm font-semibold text-base transition-colors hover:bg-lime-soft disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {estado === "enviando" ? "Enviando..." : "Entrar no ranking"}
+            </button>
+          </div>
+        )}
+      </div>
 
       {aviso && (
         <p role="status" className="mt-4 rounded-lg border border-line bg-surface p-3 text-sm">
@@ -130,9 +126,7 @@ export function Ranking() {
         {estado === "carregando" && <p className="text-sm text-muted">Carregando ranking...</p>}
 
         {estado === "indisponivel" && (
-          <p className="text-sm text-muted">
-            O ranking não está disponível agora. Seu progresso continua salvo neste navegador.
-          </p>
+          <p className="text-sm text-muted">O ranking não está disponível agora.</p>
         )}
 
         {estado !== "carregando" && estado !== "indisponivel" && lista.length === 0 && (
@@ -145,23 +139,19 @@ export function Ranking() {
             <thead className="border-b border-line text-xs uppercase tracking-wider text-muted">
               <tr>
                 <th scope="col" className="py-2 pr-3">#</th>
-                <th scope="col" className="py-2 pr-3">Apelido</th>
+                <th scope="col" className="py-2 pr-3">Jogador</th>
                 <th scope="col" className="py-2 pr-3 text-right">Missões</th>
                 <th scope="col" className="py-2 text-right">XP</th>
               </tr>
             </thead>
             <tbody>
               {lista.map((item, posicao) => (
-                <tr key={item.apelido} className="border-b border-line/60">
+                <tr
+                  key={item.apelido}
+                  className={`border-b border-line/60 ${item.apelido === identidade ? "bg-lime/5" : ""}`}
+                >
                   <td className="py-3 pr-3 font-mono text-muted">{posicao + 1}</td>
-                  <td className="py-3 pr-3 font-medium">
-                    {item.apelido}
-                    {item.verificado && (
-                      <span title="conta do GitHub" className="ml-1.5 text-xs text-sky">
-                        ✓
-                      </span>
-                    )}
-                  </td>
+                  <td className="py-3 pr-3 font-medium">{item.apelido}</td>
                   <td className="py-3 pr-3 text-right text-muted">{item.missoes}</td>
                   <td className="py-3 text-right font-mono text-lime">{item.xp}</td>
                 </tr>

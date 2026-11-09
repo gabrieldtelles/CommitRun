@@ -13,13 +13,6 @@ const LIMITE_DA_LISTA = 20;
 const semCache = { "Cache-Control": "no-store" };
 
 const envio = z.object({
-  apelido: z
-    .string()
-    .trim()
-    .min(2, "o apelido precisa de pelo menos 2 caracteres")
-    .max(24, "o apelido pode ter no máximo 24 caracteres")
-    .regex(/^[\p{L}\p{N} ._-]+$/u, "use apenas letras, números, espaço, ponto, hífen ou sublinhado")
-    .optional(),
   missoes: z.array(z.string().max(16)).max(missions.length),
 });
 
@@ -43,6 +36,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const sessao = await auth();
+  const contaId = sessao?.user?.contaId;
+  const apelido = sessao?.user?.login ?? sessao?.user?.name ?? "";
+
+  if (!contaId || !apelido) {
+    return NextResponse.json(
+      { erro: "entre com o GitHub para participar do ranking" },
+      { status: 401, headers: semCache },
+    );
+  }
+
   let corpo: unknown;
   try {
     corpo = await request.json();
@@ -54,17 +58,6 @@ export async function POST(request: Request) {
   if (!dados.success) {
     return NextResponse.json(
       { erro: dados.error.issues[0]?.message ?? "dados inválidos" },
-      { status: 400, headers: semCache },
-    );
-  }
-
-  const sessao = await auth();
-  const contaId = sessao?.user?.contaId;
-  const apelido = contaId ? (sessao?.user?.login ?? sessao?.user?.name ?? "") : dados.data.apelido;
-
-  if (!apelido) {
-    return NextResponse.json(
-      { erro: "informe um apelido ou entre com o GitHub" },
       { status: 400, headers: semCache },
     );
   }
@@ -81,12 +74,12 @@ export async function POST(request: Request) {
     apelido,
     xp,
     missoes: validas,
-    verificado: Boolean(contaId),
+    verificado: true,
     atualizadoEm: Date.now(),
   };
 
   try {
-    await salvarPontuacao(pontuacao, contaId ? `github:${contaId}` : `anonimo:${apelido}`);
+    await salvarPontuacao(pontuacao, `github:${contaId}`);
     const ranking = await listarRanking(LIMITE_DA_LISTA);
     const posicao = ranking.findIndex((item) => item.apelido === apelido) + 1;
 
