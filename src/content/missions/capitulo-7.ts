@@ -28,7 +28,7 @@ export const capitulo7: Mission[] = [
       "Confira depois com ls: o layout-novo.css não pode aparecer na main.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [
@@ -91,7 +91,7 @@ export const capitulo7: Mission[] = [
       "Confira o resultado com git log --oneline: nenhum commit de merge deve aparecer.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": README,
         "index.html": `${INDEX}\n<p>Novidades em breve.</p>`,

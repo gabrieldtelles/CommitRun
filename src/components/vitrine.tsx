@@ -33,7 +33,7 @@ export function Vitrine() {
               key={indice}
               className={linha.destaque ? "text-lime" : linha.prompt ? "text-ink" : "text-muted"}
             >
-              {linha.prompt && <span className="text-sky">~/pulso$ </span>}
+              {linha.prompt && <span className="text-sky">~/telleslab$ </span>}
               {linha.texto}
             </p>
           ))}

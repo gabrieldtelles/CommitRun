@@ -90,7 +90,7 @@ export function Terminal({ linhas, prompt, bloqueado = false, onComando }: Props
             {linha.tipo === "comando" && (
               <span className="text-sky">{linha.prompt ?? prompt}$ </span>
             )}
-            {linha.tipo === "mentora" && <span className="font-semibold">val: </span>}
+            {linha.tipo === "mentora" && <span className="font-semibold">tellesdev: </span>}
             {linha.texto}
           </p>
         ))}

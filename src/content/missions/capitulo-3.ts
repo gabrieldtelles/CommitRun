@@ -33,7 +33,7 @@ export const capitulo3: Mission[] = [
       'Depois de editar o index.html: git add index.html e git commit -m "adiciona rodape".',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [{ message: "estrutura inicial do site", files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO } }],
@@ -78,7 +78,7 @@ export const capitulo3: Mission[] = [
       "Depois confira com cat index.html e git log --oneline.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [{ message: "estrutura inicial do site", files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO } }],
@@ -88,7 +88,7 @@ export const capitulo3: Mission[] = [
             commits: [
               {
                 message: "adiciona rodape",
-                files: { "index.html": `${INDEX}\n<footer>Pulso 2026</footer>` },
+                files: { "index.html": `${INDEX}\n<footer>TellesLab 2026</footer>` },
               },
             ],
           },
@@ -132,13 +132,13 @@ export const capitulo3: Mission[] = [
       'Depois de resolver: git add index.html e git commit -m "resolve conflito do titulo".',
     ],
     seed: {
-      cwd: "/pulso",
-      files: { "README.md": README, "index.html": "<h1>Pulso ao vivo</h1>\n<p>Em construcao.</p>", "estilo.css": ESTILO },
+      cwd: "/telleslab",
+      files: { "README.md": README, "index.html": "<h1>TellesLab ao vivo</h1>\n<p>Em construcao.</p>", "estilo.css": ESTILO },
       repo: {
         commits: [
           {
             message: "estrutura inicial do site",
-            files: { "README.md": README, "index.html": "<h1>Pulso</h1>\n<p>Em construcao.</p>", "estilo.css": ESTILO },
+            files: { "README.md": README, "index.html": "<h1>TellesLab</h1>\n<p>Em construcao.</p>", "estilo.css": ESTILO },
           },
         ],
         branches: [
@@ -147,7 +147,7 @@ export const capitulo3: Mission[] = [
             commits: [
               {
                 message: "usa nome completo no titulo",
-                files: { "index.html": "<h1>Pulso Estudio</h1>\n<p>Em construcao.</p>" },
+                files: { "index.html": "<h1>TellesLab Estudio</h1>\n<p>Em construcao.</p>" },
               },
             ],
           },
@@ -157,7 +157,7 @@ export const capitulo3: Mission[] = [
             commits: [
               {
                 message: "destaca shows no titulo",
-                files: { "index.html": "<h1>Pulso ao vivo</h1>\n<p>Em construcao.</p>" },
+                files: { "index.html": "<h1>TellesLab ao vivo</h1>\n<p>Em construcao.</p>" },
               },
             ],
           },

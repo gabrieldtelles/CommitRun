@@ -21,7 +21,7 @@ export const capitulo1: Mission[] = [
     xp: 40,
     commands: ["git init", "git status"],
     briefing: [
-      "Bem-vinda ao time. Sou a Val, tech lead aqui no Pulso.",
+      "Bem-vindo ao time. Aqui é TellesDev, tech lead do TellesLab.",
       "A pasta do site existe, mas ninguém nunca versionou nada: se alguém apagar um arquivo hoje, não tem de onde voltar.",
       "Seu primeiro trabalho é ligar o git nessa pasta e olhar o que ele enxerga.",
     ],
@@ -35,7 +35,7 @@ export const capitulo1: Mission[] = [
       "Digite git init e depois git status, um comando por linha.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX },
     },
     validate: (state) =>
@@ -64,10 +64,10 @@ export const capitulo1: Mission[] = [
     hints: [
       "A forma é git config <chave> <valor>.",
       "As chaves são user.name e user.email.",
-      'Exemplo: git config user.name "Ana Lima" e depois git config user.email ana@pulso.studio',
+      'Exemplo: git config user.name "Ana Lima" e depois git config user.email ana@telleslab.dev',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX },
       repo: { config: { "user.name": "", "user.email": "" } },
     },
@@ -108,7 +108,7 @@ export const capitulo1: Mission[] = [
       'Sequência completa: git add . e depois git commit -m "estrutura inicial do site".',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX },
       repo: {},
     },
@@ -148,7 +148,7 @@ export const capitulo1: Mission[] = [
       "git log --oneline mostra um commit por linha, com o hash curto.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX },
       repo: { commits: [{ message: "estrutura inicial do site", files: { "README.md": README, "index.html": INDEX } }] },
     },

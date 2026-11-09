@@ -9,7 +9,7 @@ const ETAPAS = [
   {
     numero: "01",
     titulo: "Briefing",
-    texto: "A Val explica o problema do time e o que precisa estar versionado no fim da missão.",
+    texto: "TellesDev explica o problema do time e o que precisa estar versionado no fim da missão.",
   },
   {
     numero: "02",

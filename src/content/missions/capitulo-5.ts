@@ -2,7 +2,7 @@ import type { Mission } from "../types";
 import { commits, fileOf, isClean, sequence, usedCommand } from "../checks";
 import { ESTILO, INDEX, README } from "./cenarios";
 
-const RODAPE_BOM = `${INDEX}\n<footer>Pulso · 2026</footer>`;
+const RODAPE_BOM = `${INDEX}\n<footer>TellesLab · 2026</footer>`;
 const RODAPE_QUEBRADO = `${INDEX}\n<footer>undefined undefined</footer>`;
 
 export const capitulo5: Mission[] = [
@@ -31,7 +31,7 @@ export const capitulo5: Mission[] = [
       "O comando é git revert HEAD.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": RODAPE_QUEBRADO, "estilo.css": ESTILO },
       repo: {
         commits: [
@@ -39,7 +39,7 @@ export const capitulo5: Mission[] = [
           { message: "adiciona rodape", files: { "index.html": RODAPE_BOM } },
           { message: "quebra o rodape sem querer", files: { "index.html": RODAPE_QUEBRADO } },
         ],
-        remote: { name: "origin", url: "https://git.pulso.studio/site.git", synced: true },
+        remote: { name: "origin", url: "https://git.telleslab.dev/site.git", synced: true },
       },
     },
     validate: (state) => {
@@ -82,7 +82,7 @@ export const capitulo5: Mission[] = [
       "A sequência é: git reflog, copiar o hash do commit da página de contato, e git reset --hard <hash>.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [
@@ -91,7 +91,7 @@ export const capitulo5: Mission[] = [
         ],
         descartado: {
           message: "adiciona pagina de contato",
-          files: { "contato.html": "<h1>Fale com o Pulso</h1>\n<p>contato@pulso.studio</p>" },
+          files: { "contato.html": "<h1>Fale com o TellesLab</h1>\n<p>contato@telleslab.dev</p>" },
         },
       },
     },

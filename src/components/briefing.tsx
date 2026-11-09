@@ -21,11 +21,11 @@ export function Briefing({ mission, dicas, onPedirDica }: Props) {
           aria-hidden="true"
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-lime/15 font-mono text-sm font-bold text-lime"
         >
-          val
+          dev
         </span>
         <div>
-          <p className="text-sm font-semibold">Val</p>
-          <p className="text-xs text-muted">tech lead do Pulso</p>
+          <p className="text-sm font-semibold">TellesDev</p>
+          <p className="text-xs text-muted">tech lead do TellesLab</p>
         </div>
       </header>
 

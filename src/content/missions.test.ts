@@ -4,7 +4,7 @@ import { missions } from "./missions";
 
 const solucoes: Record<string, string[]> = {
   c1m1: ["git init", "git status"],
-  c1m2: ['git config user.name "Ana Lima"', "git config user.email ana@pulso.studio"],
+  c1m2: ['git config user.name "Ana Lima"', "git config user.email ana@telleslab.dev"],
   c1m3: ["git add .", 'git commit -m "estrutura inicial do site"'],
   c1m4: [
     'echo "body { margin: 0; }" > estilo.css',
@@ -13,7 +13,7 @@ const solucoes: Record<string, string[]> = {
     "git log --oneline",
   ],
   c2m1: [
-    'echo "<h1>Pulso</h1>" > index.html',
+    'echo "<h1>TellesLab</h1>" > index.html',
     "git diff",
     "git add index.html",
     'git commit -m "corrige nome do estudio no titulo"',
@@ -28,25 +28,25 @@ const solucoes: Record<string, string[]> = {
   c2m4: ['git commit --amend -m "ajusta cores do cabecalho"'],
   c3m1: [
     "git switch -c rodape",
-    'echo "<footer>Pulso</footer>" >> index.html',
+    'echo "<footer>TellesLab</footer>" >> index.html',
     "git add index.html",
     'git commit -m "adiciona rodape"',
   ],
   c3m2: ["git merge rodape"],
   c3m3: [
     "git merge titulo",
-    'echo "<h1>Pulso Estudio</h1>" > index.html',
+    'echo "<h1>TellesLab Estudio</h1>" > index.html',
     "git add index.html",
     'git commit -m "resolve conflito do titulo"',
   ],
-  c4m1: ["git remote add origin https://git.pulso.studio/site.git", "git remote -v"],
+  c4m1: ["git remote add origin https://git.telleslab.dev/site.git", "git remote -v"],
   c4m2: ["git add README.md", 'git commit -m "documenta como rodar o site"', "git push -u origin main"],
   c5m1: ["git revert HEAD"],
   c5m2: ["git reflog", "__recuperar__"],
   c6m1: [
     "git stash",
-    'echo "<h1>Fale com o Pulso</h1>" > contato.html',
-    'echo "<p>contato@pulso.studio</p>" >> contato.html',
+    'echo "<h1>Fale com o TellesLab</h1>" > contato.html',
+    'echo "<p>contato@telleslab.dev</p>" >> contato.html',
     "git add contato.html",
     'git commit -m "corrige e-mail de contato"',
     "git stash pop",

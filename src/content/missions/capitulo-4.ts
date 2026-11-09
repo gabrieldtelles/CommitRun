@@ -22,16 +22,16 @@ export const capitulo4: Mission[] = [
       "O servidor do estúdio já tem um repositório vazio esperando. Conecte o seu a ele com o nome origin.",
     ],
     objectives: [
-      "Adicione o remoto origin apontando para https://git.pulso.studio/site.git",
+      "Adicione o remoto origin apontando para https://git.telleslab.dev/site.git",
       "Confirme a conexão com git remote -v",
     ],
     hints: [
       "A forma é git remote add <nome> <url>.",
       "O nome padrão do remoto principal é origin.",
-      "git remote add origin https://git.pulso.studio/site.git e depois git remote -v.",
+      "git remote add origin https://git.telleslab.dev/site.git e depois git remote -v.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [{ message: "estrutura inicial do site", files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO } }],
@@ -42,7 +42,7 @@ export const capitulo4: Mission[] = [
         [Boolean(state.machine.repo?.remote), "Nenhum remoto foi adicionado ainda."],
         [state.machine.repo?.remote?.name === "origin", "O remoto precisa se chamar origin."],
         [
-          (state.machine.repo?.remote?.url ?? "").includes("git.pulso.studio/site.git"),
+          (state.machine.repo?.remote?.url ?? "").includes("git.telleslab.dev/site.git"),
           "A URL do remoto não é a do repositório do estúdio.",
         ],
         [usedCommand(state, /^git\s+remote\s+-v/), "Confirme a conexão com git remote -v."],
@@ -71,7 +71,7 @@ export const capitulo4: Mission[] = [
       "Na primeira vez, o push leva -u: git push -u origin main.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": `${README}\n\n## Como rodar\n\nAbra o index.html no navegador.`,
         "index.html": INDEX,
@@ -79,7 +79,7 @@ export const capitulo4: Mission[] = [
       },
       repo: {
         commits: [{ message: "estrutura inicial do site", files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO } }],
-        remote: { name: "origin", url: "https://git.pulso.studio/site.git" },
+        remote: { name: "origin", url: "https://git.telleslab.dev/site.git" },
       },
     },
     validate: (state) => {

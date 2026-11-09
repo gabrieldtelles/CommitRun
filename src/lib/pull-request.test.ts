@@ -61,7 +61,7 @@ describe("diff do pull request", () => {
   });
 
   it("devolve lista vazia quando não há repositório", () => {
-    const machine = createMachine({ cwd: "/pulso", files: { "a.txt": "a" } });
+    const machine = createMachine({ cwd: "/telleslab", files: { "a.txt": "a" } });
     expect(gerarArquivosDoPr(machine, {})).toEqual([]);
   });
 });

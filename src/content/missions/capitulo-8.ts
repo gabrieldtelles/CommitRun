@@ -27,7 +27,7 @@ export const capitulo8: Mission[] = [
       'O comando é git tag -a v1.0.0 -m "primeira versao do site no ar".',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [
@@ -74,7 +74,7 @@ export const capitulo8: Mission[] = [
       "Para publicar: git push -u origin main.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": `${README}\n\n## Como rodar\n\nAbra o index.html no navegador.`,
         "index.html": INDEX,
@@ -87,7 +87,7 @@ export const capitulo8: Mission[] = [
             files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
           },
         ],
-        remote: { name: "origin", url: "https://git.pulso.studio/site.git" },
+        remote: { name: "origin", url: "https://git.telleslab.dev/site.git" },
       },
     },
     validate: (state) => {

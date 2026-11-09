@@ -21,7 +21,7 @@ export const capitulo6: Mission[] = [
     ],
     objectives: [
       "Guarde as mudanças em andamento com git stash",
-      "Corrija o e-mail no contato.html para contato@pulso.studio e comite só isso",
+      "Corrija o e-mail no contato.html para contato@telleslab.dev e comite só isso",
       "Traga o trabalho guardado de volta com git stash pop",
     ],
     hints: [
@@ -30,12 +30,12 @@ export const capitulo6: Mission[] = [
       "No fim, git stash pop devolve o estilo.css pela metade para você continuar.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": README,
         "index.html": INDEX,
         "estilo.css": ESTILO_EM_ANDAMENTO,
-        "contato.html": "<h1>Fale com o Pulso</h1>\n<p>contato@pulsos.studio</p>",
+        "contato.html": "<h1>Fale com o TellesLab</h1>\n<p>contato@telleslabs.studio</p>",
       },
       repo: {
         commits: [
@@ -45,7 +45,7 @@ export const capitulo6: Mission[] = [
               "README.md": README,
               "index.html": INDEX,
               "estilo.css": ESTILO,
-              "contato.html": "<h1>Fale com o Pulso</h1>\n<p>contato@pulsos.studio</p>",
+              "contato.html": "<h1>Fale com o TellesLab</h1>\n<p>contato@telleslabs.studio</p>",
             },
           },
         ],
@@ -59,7 +59,7 @@ export const capitulo6: Mission[] = [
 
       return sequence(
         [usedCommand(state, /^git\s+stash/), "Comece guardando o trabalho em andamento com git stash."],
-        [contato.includes("contato@pulso.studio"), "O e-mail do contato.html ainda está errado."],
+        [contato.includes("contato@telleslab.dev"), "O e-mail do contato.html ainda está errado."],
         [commits(state.machine).length >= 2, "A correção do e-mail ainda não virou commit."],
         [
           !(ultimo?.snapshot && Object.keys(ultimo.snapshot).length === 0) &&
@@ -95,7 +95,7 @@ export const capitulo6: Mission[] = [
       'Exemplo: git stash -m "galeria do site pela metade" e depois git stash list.',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO_EM_ANDAMENTO },
       repo: {
         commits: [

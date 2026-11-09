@@ -31,7 +31,7 @@ vontade e reiniciar quantas vezes quiser. Nada do seu computador é tocado.
 
 | | |
 |---|---|
-| **1. Briefing** | A Val, tech lead do time, explica o problema que apareceu e o que precisa estar resolvido no fim |
+| **1. Briefing** | TellesDev, tech lead do time, explica o problema que apareceu e o que precisa estar resolvido no fim |
 | **2. Terminal** | Você resolve com git de verdade — `init`, `rebase`, `stash`, `cherry-pick`, o que a missão pedir |
 | **3. Validação** | O estado do repositório é conferido comando a comando. Passou, ganha XP e libera a próxima |
 
@@ -166,7 +166,7 @@ Adicione um item em `src/content/missions/capitulo-N.ts`:
   briefing: ["Contexto do problema."],
   objectives: ["O que precisa estar feito no fim"],
   hints: ["dica leve", "dica média", "dica que entrega o comando"],
-  seed: { cwd: "/pulso", files: { "README.md": "..." }, repo: {} },
+  seed: { cwd: "/telleslab", files: { "README.md": "..." }, repo: {} },
   validate: (state) => sequence([condicao, "mensagem quando falta fazer"]),
 }
 ```

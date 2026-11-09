@@ -25,7 +25,7 @@ export const capitulo2: Mission[] = [
       "O título do site está errado: trocaram o nome do estúdio. Corrija o index.html, confira a mudança com git diff e só então grave.",
     ],
     objectives: [
-      "Troque Pulsos por Pulso no index.html",
+      "Troque TellesLabs por TellesLab no index.html",
       "Confira a mudança com git diff antes de preparar",
       "Prepare e grave o commit da correção",
     ],
@@ -35,15 +35,15 @@ export const capitulo2: Mission[] = [
       'Depois de corrigir: git diff, git add index.html, git commit -m "corrige nome do estudio no titulo".',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": README,
-        "index.html": "<h1>Pulsos</h1>\n<p>Em construcao.</p>",
+        "index.html": "<h1>TellesLabs</h1>\n<p>Em construcao.</p>",
         "estilo.css": ESTILO,
       },
       repo: {
         commits: [
-          { message: "estrutura inicial do site", files: { "README.md": README, "index.html": "<h1>Pulsos</h1>\n<p>Em construcao.</p>" } },
+          { message: "estrutura inicial do site", files: { "README.md": README, "index.html": "<h1>TellesLabs</h1>\n<p>Em construcao.</p>" } },
           { message: "adiciona folha de estilo", files: { "estilo.css": ESTILO } },
         ],
       },
@@ -51,7 +51,7 @@ export const capitulo2: Mission[] = [
     validate: (state) => {
       const conteudo = fileOf(state.machine, "index.html") ?? "";
       return sequence(
-        [conteudo.includes("<h1>Pulso</h1>"), "O título do index.html ainda não está como <h1>Pulso</h1>."],
+        [conteudo.includes("<h1>TellesLab</h1>"), "O título do index.html ainda não está como <h1>TellesLab</h1>."],
         [usedCommand(state, /^git\s+diff/), "Confira a mudança com git diff antes de commitar."],
         [commits(state.machine).length >= 3, "A correção ainda não virou commit."],
         [isClean(state.machine), "Ficou mudança pendente fora do commit."],
@@ -82,7 +82,7 @@ export const capitulo2: Mission[] = [
       "Depois do .gitignore pronto, git add . e git commit normalmente. Confira com git status que os ignorados sumiram.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": README,
         "index.html": INDEX,
@@ -131,7 +131,7 @@ export const capitulo2: Mission[] = [
       "São dois comandos: git restore --staged rascunho.txt e git restore estilo.css.",
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: {
         "README.md": README,
         "index.html": INDEX,
@@ -174,7 +174,7 @@ export const capitulo2: Mission[] = [
       'Exemplo: git commit --amend -m "ajusta cores do cabecalho".',
     ],
     seed: {
-      cwd: "/pulso",
+      cwd: "/telleslab",
       files: { "README.md": README, "index.html": INDEX, "estilo.css": ESTILO },
       repo: {
         commits: [

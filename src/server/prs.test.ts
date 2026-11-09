@@ -14,7 +14,7 @@ const dadosDoPr = {
   missaoId: "c1m3",
   titulo: "estrutura inicial do site",
   descricao: "primeiro commit do projeto",
-  arquivos: [{ caminho: "README.md", diff: "diff --git a/README.md b/README.md\n+# Pulso" }],
+  arquivos: [{ caminho: "README.md", diff: "diff --git a/README.md b/README.md\n+# TellesLab" }],
 };
 
 const reviewValido = {

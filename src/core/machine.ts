@@ -64,7 +64,7 @@ export function createMachine(seed: MachineSeed): Machine {
   if (!seed.repo) return machine;
 
   const repo = createRepo(seed.cwd);
-  repo.config = { "user.name": "dev", "user.email": "dev@pulso.studio", ...seed.repo.config };
+  repo.config = { "user.name": "dev", "user.email": "dev@telleslab.dev", ...seed.repo.config };
   mkdirp(fs, `${seed.cwd}/.git`);
 
   const main = seed.repo.branch ?? "main";

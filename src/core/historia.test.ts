@@ -5,7 +5,7 @@ import { headCommit, history } from "./repo";
 import type { Machine } from "./types";
 
 function projeto(): Machine {
-  const machine = createMachine({ cwd: "/pulso", files: { "nota.txt": "linha um" } });
+  const machine = createMachine({ cwd: "/telleslab", files: { "nota.txt": "linha um" } });
   rodar(machine, "git init", "git add .", 'git commit -m "base"');
   return machine;
 }
@@ -24,7 +24,7 @@ describe("revert", () => {
     const saida = rodar(machine, "git revert HEAD");
 
     expect(saida).toContain('Revert "erro"');
-    expect(readFile(machine.fs, "/pulso/nota.txt")).toBe("linha um");
+    expect(readFile(machine.fs, "/telleslab/nota.txt")).toBe("linha um");
     expect(history(machine.repo!, machine.repo!.branches["main"] ?? null)).toHaveLength(3);
   });
 
@@ -53,10 +53,10 @@ describe("reflog", () => {
     const perdido = headCommit(machine.repo!)!.hash;
 
     rodar(machine, "git reset --hard HEAD~1");
-    expect(readFile(machine.fs, "/pulso/nota.txt")).toBe("linha um");
+    expect(readFile(machine.fs, "/telleslab/nota.txt")).toBe("linha um");
 
     rodar(machine, `git reset --hard ${perdido.slice(0, 7)}`);
-    expect(readFile(machine.fs, "/pulso/nota.txt")).toBe("importante");
+    expect(readFile(machine.fs, "/telleslab/nota.txt")).toBe("importante");
   });
 });
 
@@ -66,10 +66,10 @@ describe("stash", () => {
     rodar(machine, 'echo "meio feito" > nota.txt');
 
     expect(rodar(machine, "git stash")).toContain("Saved working directory");
-    expect(readFile(machine.fs, "/pulso/nota.txt")).toBe("linha um");
+    expect(readFile(machine.fs, "/telleslab/nota.txt")).toBe("linha um");
 
     expect(rodar(machine, "git stash pop")).toContain("Dropped");
-    expect(readFile(machine.fs, "/pulso/nota.txt")).toBe("meio feito");
+    expect(readFile(machine.fs, "/telleslab/nota.txt")).toBe("meio feito");
     expect(machine.repo!.stash).toHaveLength(0);
   });
 
@@ -95,8 +95,8 @@ describe("cherry-pick", () => {
     const alvo = headCommit(machine.repo!)!.parents[0]!;
     rodar(machine, "git switch main", `git cherry-pick ${alvo.slice(0, 7)}`);
 
-    expect(readFile(machine.fs, "/pulso/correcao.txt")).toBe("correcao");
-    expect(readFile(machine.fs, "/pulso/outro.txt")).toBeNull();
+    expect(readFile(machine.fs, "/telleslab/correcao.txt")).toBe("correcao");
+    expect(readFile(machine.fs, "/telleslab/outro.txt")).toBeNull();
   });
 });
 
@@ -110,8 +110,8 @@ describe("rebase", () => {
     const saida = rodar(machine, "git rebase main");
 
     expect(saida).toContain("Successfully rebased");
-    expect(readFile(machine.fs, "/pulso/main.txt")).toBe("da main");
-    expect(readFile(machine.fs, "/pulso/ajuste.txt")).toBe("do ajuste");
+    expect(readFile(machine.fs, "/telleslab/main.txt")).toBe("da main");
+    expect(readFile(machine.fs, "/telleslab/ajuste.txt")).toBe("do ajuste");
     expect(headCommit(machine.repo!)?.parents).toHaveLength(1);
   });
 
