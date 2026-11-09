@@ -3,7 +3,12 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { missions } from "@/content/missions";
 import { dentroDoLimite } from "@/server/limite-de-taxa";
-import { lerProgresso, unirProgresso } from "@/server/progresso-do-usuario";
+import {
+  lerProgresso,
+  resumoDoProgresso,
+  sincronizarProgresso,
+} from "@/server/progresso-do-usuario";
+import { registrarPontuacao } from "@/server/ranking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,34 +16,42 @@ export const dynamic = "force-dynamic";
 const semCache = { "Cache-Control": "no-store" };
 
 const envio = z.object({
-  missoes: z.array(z.string().max(16)).max(missions.length),
+  missoes: z
+    .array(z.object({ id: z.string().max(16), revisoes: z.number().int().min(0).max(99).optional() }))
+    .max(missions.length),
 });
 
-async function contaAtual(): Promise<string | null> {
-  const sessao = await auth();
-  return sessao?.user?.contaId ?? null;
-}
-
 export async function GET() {
-  const contaId = await contaAtual();
+  const sessao = await auth();
+  const contaId = sessao?.user?.contaId;
+
   if (!contaId) {
     return NextResponse.json({ erro: "não autenticado" }, { status: 401, headers: semCache });
   }
 
   try {
-    return NextResponse.json({ progresso: await lerProgresso(contaId) }, { headers: semCache });
+    const progresso = await lerProgresso(contaId);
+    return NextResponse.json(
+      { progresso, resumo: resumoDoProgresso(progresso) },
+      { headers: semCache },
+    );
   } catch {
-    return NextResponse.json({ erro: "não foi possível ler o progresso" }, { status: 503, headers: semCache });
+    return NextResponse.json(
+      { erro: "não foi possível ler o progresso" },
+      { status: 503, headers: semCache },
+    );
   }
 }
 
 export async function POST(request: Request) {
-  const contaId = await contaAtual();
+  const sessao = await auth();
+  const contaId = sessao?.user?.contaId;
+
   if (!contaId) {
     return NextResponse.json({ erro: "não autenticado" }, { status: 401, headers: semCache });
   }
 
-  if (!dentroDoLimite(`progresso:${contaId}`, 30)) {
+  if (!dentroDoLimite(`progresso:${contaId}`, 40)) {
     return NextResponse.json({ erro: "muitas gravações seguidas" }, { status: 429, headers: semCache });
   }
 
@@ -55,9 +68,25 @@ export async function POST(request: Request) {
   }
 
   try {
-    const progresso = await unirProgresso(contaId, dados.data.missoes);
-    return NextResponse.json({ progresso }, { headers: semCache });
+    const progresso = await sincronizarProgresso(contaId, dados.data.missoes);
+    const resumo = resumoDoProgresso(progresso);
+
+    await registrarPontuacao({
+      contaId,
+      apelido: sessao.user.login ?? sessao.user.name ?? "jogador",
+      avatar: sessao.user.image ?? null,
+      xp: resumo.xp,
+      xpDaSemana: resumo.xpDaSemana,
+      missoes: resumo.missoes,
+      sequencia: resumo.sequencia.atual,
+      atualizadoEm: Date.now(),
+    });
+
+    return NextResponse.json({ progresso, resumo }, { headers: semCache });
   } catch {
-    return NextResponse.json({ erro: "não foi possível salvar o progresso" }, { status: 503, headers: semCache });
+    return NextResponse.json(
+      { erro: "não foi possível salvar o progresso" },
+      { status: 503, headers: semCache },
+    );
   }
 }
