@@ -18,6 +18,9 @@ export function IconeInstagram(props: Props) {
   return <Marca path={siInstagram.path} {...props} />;
 }
 
+// Para usar a marca oficial: baixe o SVG em brand.linkedin.com/downloads,
+// salve em public/linkedin.svg e troque este componente por
+// <Image src="/linkedin.svg" alt="" width={20} height={20} className={className} />
 export function IconeLinkedin({ className }: Props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8"
