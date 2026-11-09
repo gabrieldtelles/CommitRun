@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Cabecalho } from "@/components/cabecalho";
 import { CtaContinuar } from "@/components/cta-continuar";
+import { Vitrine } from "@/components/vitrine";
 import { chapters, missions, totalXp } from "@/content/missions";
 
 const ETAPAS = [
@@ -27,12 +28,13 @@ export default function HomePage() {
       <Cabecalho />
 
       <main>
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.15fr_1fr]">
+          <div>
           <p className="font-mono text-sm text-lime">git sem decoreba</p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-6xl">
+          <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-6xl">
             Você só aprende git quebrando (e consertando) um repositório.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+          <p className="mt-6 text-lg leading-relaxed text-muted">
             CommitRun são {missions.length} missões curtas num terminal simulado. Você entra no time
             de engenharia de um estúdio fictício e resolve os problemas que aparecem de verdade:
             commit mal escrito, arquivo que não devia estar no repositório, branch que precisa voltar
@@ -43,7 +45,7 @@ export default function HomePage() {
             <CtaContinuar />
           </div>
 
-          <dl className="mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-line pt-6">
+          <dl className="mt-14 grid grid-cols-3 gap-6 border-t border-line pt-6">
             <div>
               <dt className="text-xs uppercase tracking-wider text-muted">Missões</dt>
               <dd className="mt-1 font-mono text-2xl text-lime">{missions.length}</dd>
@@ -57,6 +59,9 @@ export default function HomePage() {
               <dd className="mt-1 font-mono text-2xl text-lime">{totalXp}</dd>
             </div>
           </dl>
+          </div>
+
+          <Vitrine />
         </section>
 
         <section
