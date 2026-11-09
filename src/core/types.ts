@@ -45,7 +45,10 @@ export type Machine = {
   repo: Repo | null;
 };
 
+export type CommandEffect = { type: "clear" } | { type: "edit"; path: string };
+
 export type CommandResult = {
   output: string;
   error?: boolean;
+  effect?: CommandEffect;
 };
