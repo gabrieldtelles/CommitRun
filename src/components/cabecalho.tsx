@@ -21,9 +21,16 @@ export function Cabecalho() {
         </Link>
 
         <nav aria-label="Navegação principal" className="flex items-center gap-5 text-sm">
-          <Link href="/missoes" className="text-muted transition-colors hover:text-ink">
-            Trilha
-          </Link>
+          {logado && (
+            <>
+              <Link href="/hangar" className="text-muted transition-colors hover:text-ink">
+                Hangar
+              </Link>
+              <Link href="/revisoes" className="text-muted transition-colors hover:text-ink">
+                Revisões
+              </Link>
+            </>
+          )}
           <Link href="/ranking" className="text-muted transition-colors hover:text-ink">
             Ranking
           </Link>

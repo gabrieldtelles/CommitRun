@@ -113,10 +113,10 @@ export default function HomePage() {
 
           <div className="mt-10">
             <Link
-              href="/missoes"
+              href="/hangar"
               className="inline-block rounded-lg bg-lime px-6 py-3 text-sm font-semibold text-base transition-colors hover:bg-lime-soft"
             >
-              Abrir a trilha
+              Abrir a campanha
             </Link>
           </div>
         </section>

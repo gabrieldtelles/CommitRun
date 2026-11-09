@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const ROTAS_PROTEGIDAS = ["/missoes", "/missao"];
+const ROTAS_PROTEGIDAS = ["/hangar", "/missoes", "/missao", "/revisoes"];
 
 const COOKIES_DE_SESSAO = ["authjs.session-token", "__Secure-authjs.session-token"];
 
@@ -21,5 +21,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/missoes/:path*", "/missao/:path*"],
+  matcher: ["/hangar/:path*", "/missoes/:path*", "/missao/:path*", "/revisoes/:path*"],
 };

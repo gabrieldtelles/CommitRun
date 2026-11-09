@@ -25,7 +25,7 @@ export function CtaContinuar() {
       <div className="space-y-3">
         <button
           type="button"
-          onClick={() => void signIn("github", { callbackUrl: bloqueado ?? "/missoes" })}
+          onClick={() => void signIn("github", { callbackUrl: bloqueado ?? "/hangar" })}
           className="rounded-lg bg-lime px-6 py-3 text-sm font-semibold text-base transition-colors hover:bg-lime-soft"
         >
           Entrar com GitHub e começar
@@ -51,10 +51,10 @@ export function CtaContinuar() {
         {feitas > 0 ? "Continuar de onde parei" : "Começar a primeira missão"}
       </Link>
       <Link
-        href="/missoes"
+        href="/hangar"
         className="rounded-lg border border-line px-6 py-3 text-center text-sm font-semibold transition-colors hover:border-lime hover:text-lime"
       >
-        Ver a trilha completa
+        Ver a campanha completa
       </Link>
     </div>
   );
