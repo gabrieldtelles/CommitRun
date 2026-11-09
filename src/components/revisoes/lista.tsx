@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { plural } from "@/lib/plural";
 import { INTERVALOS_EM_DIAS } from "@/lib/revisao";
 import { useAgendaDeRevisoes, type ItemDeRevisao } from "./use-agenda";
 
@@ -21,13 +22,13 @@ function Cartao({ item, vencida }: { item: ItemDeRevisao; vencida: boolean }) {
             capítulo {item.mission.chapter} · {item.dominio} ·{" "}
             {item.local.revisoes === 0
               ? "nunca revisada"
-              : `${item.local.revisoes} revisão(ões) feitas`}
+              : `${plural(item.local.revisoes, "revisão feita", "revisões feitas")}`}
           </p>
         </div>
 
         <div className="text-right">
           <p className={`font-mono text-sm ${vencida ? "text-warn" : "text-muted"}`}>
-            {vencida ? "pronta para revisar" : `em ${item.diasRestantes} dia(s)`}
+            {vencida ? "pronta para revisar" : `em ${plural(item.diasRestantes, "dia", "dias")}`}
           </p>
           <p className="font-mono text-xs text-lime">+{item.xp} XP</p>
         </div>

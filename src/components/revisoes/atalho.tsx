@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { plural } from "@/lib/plural";
 import { useAgendaDeRevisoes } from "./use-agenda";
 
 export function AtalhoDeRevisoes() {
@@ -29,7 +30,7 @@ export function AtalhoDeRevisoes() {
       {vencidas.length > 0 ? (
         <>
           <p className="mt-2 text-2xl font-bold">
-            {vencidas.length} {vencidas.length === 1 ? "missão" : "missões"} esperando
+            {plural(vencidas.length, "missão esperando", "missões esperando")}
           </p>
           <p className="mt-1 text-sm text-muted">
             Refaça para fixar o que aprendeu e garantir XP extra.
@@ -47,7 +48,7 @@ export function AtalhoDeRevisoes() {
           {proxima && (
             <p className="mt-1 text-sm text-muted">
               A próxima é <strong className="font-medium text-ink">{proxima.mission.title}</strong>,
-              em {proxima.diasRestantes} {proxima.diasRestantes === 1 ? "dia" : "dias"}.
+              em {plural(proxima.diasRestantes, "dia", "dias")}.
             </p>
           )}
           <Link

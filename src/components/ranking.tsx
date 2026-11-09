@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { plural } from "@/lib/plural";
 import { fimDaSemana, inicioDaSemana } from "@/lib/temporada";
 
 type Linha = {
@@ -122,8 +123,9 @@ export function Ranking() {
                     {linha.voce && <span className="ml-2 text-xs text-lime">você</span>}
                   </p>
                   <p className="font-mono text-xs text-muted">
-                    {linha.missoes} missões
-                    {linha.sequencia > 0 && ` · ${linha.sequencia} dias seguidos`}
+                    {plural(linha.missoes, "missão", "missões")}
+                    {linha.sequencia > 0 &&
+                      ` · ${plural(linha.sequencia, "dia seguido", "dias seguidos")}`}
                   </p>
                 </div>
 
