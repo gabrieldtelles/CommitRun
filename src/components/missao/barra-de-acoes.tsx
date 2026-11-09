@@ -23,8 +23,8 @@ export function BarraDeAcoes({
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="font-mono text-xs text-muted">
-            <Link href="/missoes" className="hover:text-lime">
-              trilha
+            <Link href="/hangar" className="hover:text-lime">
+              hangar
             </Link>{" "}
             / capítulo {mission.chapter} / missão {mission.order} / {mission.xp} XP
           </p>

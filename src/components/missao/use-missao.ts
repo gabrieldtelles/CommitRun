@@ -19,6 +19,7 @@ export function useMissao(mission: Mission) {
   const [dicas, setDicas] = useState<string[]>([]);
   const [concluida, setConcluida] = useState(false);
   const [ganho, setGanho] = useState(0);
+  const [foiRevisao, setFoiRevisao] = useState(false);
   const [editando, setEditando] = useState<string | null>(null);
   const [linhas, setLinhas] = useState<LinhaTerminal[]>(() => [
     { id: 0, tipo: "mentora", texto: `${mission.title}. Digite missao para rever o objetivo.` },
@@ -26,7 +27,8 @@ export function useMissao(mission: Mission) {
 
   const machine = jogo.machine;
   const concluir = useProgresso((estado) => estado.concluir);
-  const jaConcluida = useProgresso((estado) => Boolean(estado.missoes[mission.id]));
+  const revisar = useProgresso((estado) => estado.revisar);
+  const registro = useProgresso((estado) => estado.missoes[mission.id]);
 
   const proxima = useMemo(() => {
     const lista = ordenadas();
@@ -54,9 +56,14 @@ export function useMissao(mission: Mission) {
     }
 
     escrever([{ tipo: "mentora", texto: resultado.message }]);
+
+    const revisao = Boolean(registro);
+    const premio = revisao ? revisar(mission) : concluir(mission, dicas.length);
+
+    setFoiRevisao(revisao);
+    setGanho(premio);
     setConcluida(true);
-    setGanho(jaConcluida ? 0 : concluir(mission, dicas.length));
-  }, [concluir, dicas.length, escrever, historico, jaConcluida, machine, mission]);
+  }, [concluir, dicas.length, escrever, historico, machine, mission, registro, revisar]);
 
   const pedirDica = useCallback(() => {
     setDicas((anteriores) => {
@@ -122,6 +129,8 @@ export function useMissao(mission: Mission) {
     dicas,
     concluida,
     ganho,
+    foiRevisao,
+    jaConcluida: Boolean(registro),
     editando,
     proxima,
     prompt: montarPrompt(machine),
