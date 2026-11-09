@@ -2,7 +2,9 @@ import type { CommandResult, Machine } from "../types";
 import { fail, notARepo, ok, requireRepo, type GitContext } from "./context";
 import { gitAdd, gitConfig, gitInit, gitRestore, gitRm, gitStatus } from "./basics";
 import { gitBranch, gitMerge, gitSwitch } from "./branches";
-import { gitCommit, gitDiff, gitLog, gitReset, gitShow } from "./commits";
+import { gitCommit } from "./commit";
+import { gitLog, gitShow } from "./historico";
+import { gitDiff, gitReset } from "./mudancas";
 import { gitPull, gitPush, gitRemote } from "./remote";
 
 const HELP = `comandos git disponíveis nesta simulação:
