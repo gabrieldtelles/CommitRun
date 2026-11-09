@@ -17,3 +17,4 @@ AGENTS.md
 
 # arquivos de trabalho da marca (nao versionar)
 marca/
+.env*
