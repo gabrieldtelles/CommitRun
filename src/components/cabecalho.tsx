@@ -20,6 +20,9 @@ export function Cabecalho() {
           <Link href="/missoes" className="text-muted transition-colors hover:text-ink">
             Trilha
           </Link>
+          <Link href="/ranking" className="text-muted transition-colors hover:text-ink">
+            Ranking
+          </Link>
 
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
