@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { nivel, patente, xpNoNivel } from "@/lib/progresso";
 import { useProgresso } from "@/store/progresso";
+import { Sessao } from "./sessao";
 
 export function Cabecalho() {
   const xp = useProgresso((estado) => estado.xp);
@@ -45,6 +46,8 @@ export function Cabecalho() {
               />
             </div>
           </div>
+
+          <Sessao />
         </nav>
       </div>
     </header>
