@@ -58,6 +58,8 @@ export function SalaDeMissao({ slug }: { slug: string }) {
           ganho={jogo.ganho}
           dicasUsadas={jogo.dicas.length}
           foiRevisao={jogo.foiRevisao}
+          machine={jogo.machine}
+          snapshotInicial={jogo.snapshotInicial}
           onFechar={jogo.fecharConclusao}
         />
       )}

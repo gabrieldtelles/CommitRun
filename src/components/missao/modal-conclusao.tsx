@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import type { Mission } from "@/content/types";
+import type { Machine } from "@/core/types";
 import { xpGanho } from "@/lib/progresso";
+import { EnviarParaReview } from "./enviar-para-review";
 
 type Props = {
   mission: Mission;
@@ -10,6 +12,8 @@ type Props = {
   ganho: number;
   dicasUsadas: number;
   foiRevisao: boolean;
+  machine: Machine;
+  snapshotInicial: Record<string, string>;
   onFechar: () => void;
 };
 
@@ -35,6 +39,8 @@ export function ModalConclusao({
   ganho,
   dicasUsadas,
   foiRevisao,
+  machine,
+  snapshotInicial,
   onFechar,
 }: Props) {
   return (
@@ -55,7 +61,15 @@ export function ModalConclusao({
           {textoDoGanho(mission, ganho, dicasUsadas, foiRevisao)}
         </p>
 
-        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+        <div className="mt-5">
+          <EnviarParaReview
+            mission={mission}
+            machine={machine}
+            snapshotInicial={snapshotInicial}
+          />
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <button
             type="button"
             onClick={onFechar}

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { createMachine, prompt as montarPrompt, runCommand } from "@/core/machine";
+import { headCommit } from "@/core/repo";
 import type { Machine } from "@/core/types";
 import type { Mission } from "@/content/types";
 import { ordenadas } from "@/lib/progresso";
@@ -11,10 +12,16 @@ import type { LinhaTerminal } from "../terminal";
 const COMANDOS_DO_JOGO = ["missao", "validar", "dica"];
 
 export function useMissao(mission: Mission) {
-  const [jogo, setJogo] = useState<{ machine: Machine; versao: number }>(() => ({
-    machine: createMachine(mission.seed),
-    versao: 0,
-  }));
+  const [jogo, setJogo] = useState<{ machine: Machine; versao: number; inicial: Record<string, string> }>(
+    () => {
+      const machine = createMachine(mission.seed);
+      return {
+        machine,
+        versao: 0,
+        inicial: machine.repo ? (headCommit(machine.repo)?.snapshot ?? {}) : {},
+      };
+    },
+  );
   const [historico, setHistorico] = useState<string[]>([]);
   const [dicas, setDicas] = useState<string[]>([]);
   const [concluida, setConcluida] = useState(false);
@@ -114,7 +121,12 @@ export function useMissao(mission: Mission) {
   );
 
   const reiniciar = useCallback(() => {
-    setJogo({ machine: createMachine(mission.seed), versao: 0 });
+    const nova = createMachine(mission.seed);
+    setJogo({
+      machine: nova,
+      versao: 0,
+      inicial: nova.repo ? (headCommit(nova.repo)?.snapshot ?? {}) : {},
+    });
     setHistorico([]);
     setConcluida(false);
     setGanho(0);
@@ -125,6 +137,7 @@ export function useMissao(mission: Mission) {
 
   return {
     machine,
+    snapshotInicial: jogo.inicial,
     linhas,
     dicas,
     concluida,
