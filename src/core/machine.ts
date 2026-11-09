@@ -1,4 +1,4 @@
-import { createRoot, mkdirp, writeFile } from "./fs";
+import { createRoot, mkdirp, readFile, writeFile } from "./fs";
 import { runGit } from "./git";
 import { parseLine, runShell } from "./shell";
 import { applySnapshot, createRepo, writeBlob } from "./repo";
@@ -17,6 +17,7 @@ export type MachineSeed = {
     config?: Record<string, string>;
     commits?: SeedCommit[];
     branches?: SeedBranch[];
+    staged?: string[];
     remote?: { name: string; url: string; synced?: boolean };
   };
 };
@@ -76,8 +77,10 @@ export function createMachine(seed: MachineSeed): Machine {
     if (tip.hash) repo.branches[branch.name] = tip.hash;
   }
 
+  const mainTip = repo.branches[main];
+  const mainSnapshot = mainTip ? (repo.commits[mainTip]?.snapshot ?? {}) : {};
   repo.head = { kind: "branch", name: main };
-  repo.index = { ...base.snapshot };
+  repo.index = { ...mainSnapshot };
 
   if (seed.repo.remote) {
     repo.remote = {
@@ -87,18 +90,22 @@ export function createMachine(seed: MachineSeed): Machine {
       commits: {},
       objects: {},
     };
-    if (seed.repo.remote.synced && base.hash) {
-      repo.remote.branches[main] = base.hash;
+    if (seed.repo.remote.synced && mainTip) {
+      repo.remote.branches[main] = mainTip;
       repo.remote.commits = { ...repo.commits };
       repo.remote.objects = { ...repo.objects };
     }
   }
 
   machine.repo = repo;
-  if (base.hash) applySnapshot(fs, repo, base.snapshot);
+  if (mainTip) applySnapshot(fs, repo, mainSnapshot);
 
   for (const [path, content] of Object.entries(seed.files ?? {})) {
     writeFile(fs, `${seed.cwd}/${path}`, content);
+  }
+
+  for (const path of seed.repo.staged ?? []) {
+    repo.index[path] = writeBlob(repo, readFile(fs, `${seed.cwd}/${path}`) ?? "");
   }
 
   return machine;
